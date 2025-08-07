@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Rubric Markdown Editor</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: #f5f5f5;
+            line-height: 1.4;
+        }
+
+        .container {
+            margin: 0 auto;
+            background: white;
+            border-radius: 6px;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .editor-container {
+            display: flex;
+            min-height: 600px;
+        }
+
+        .editor-pane {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pane-header {
+            background: #f8f9fa;
+            padding: 8px 15px;
+            border-bottom: 1px solid #e9ecef;
+            font-weight: 600;
+            color: #495057;
+            font-size: 0.9em;
+        }
+
+        #editor {
+            flex: 1;
+            border: none;
+            resize: none;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.4;
+            background: #fafafa;
+            outline: none;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: scroll;
+        }
+
+        .preview-pane {
+            flex: 1;
+            border-left: 1px solid #e9ecef;
+            background: white;
+        }
+
+        .preview-content {
+            padding: 15px;
+            min-height: 540px;
+            overflow-y: auto;
+        }
+
+        .score-badge {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 1px 6px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 0.8em;
+            margin-right: 6px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .criterion {
+            margin-bottom: 15px;
+            border-left: 3px solid #667eea;
+            padding-left: 12px;
+        }
+
+        .criterion-header {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            margin-bottom: 8px;
+        }
+
+        .fold-triangle {
+            margin-right: 8px;
+            font-size: 0.8em;
+            transition: transform 0.2s ease;
+            color: #666;
+        }
+
+        .fold-triangle.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .criterion-name {
+            font-weight: bold;
+            font-size: 1em;
+            color: #2c3e50;
+        }
+
+        .criterion-score {
+            margin-left: auto;
+            background: #17a2b8;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .criterion-summary {
+            margin-left: 8px;
+            background: #6f42c1;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .criterion-options {
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .criterion-options.collapsed {
+            height: 0;
+            margin-bottom: 0;
+        }
+
+        .option {
+            margin: 6px 0;
+            padding: 6px 10px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border-left: 2px solid #dee2e6;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            text-align: right;
+        }
+
+        .btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        .btn:hover {
+            background: #5a6268;
+        }
+
+        .btn.save {
+            background: #28a745;
+        }
+
+        .btn.save:hover {
+            background: #218838;
+        }
+
+        .btn.load {
+            background: #17a2b8;
+        }
+
+        .btn.load:hover {
+            background: #138496;
+        }
+
+        .btn.clear {
+            background: #dc3545;
+        }
+
+        .btn.clear:hover {
+            background: #c82333;
+        }
+
+        .total-score {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: bold;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .empty-state {
+            text-align: center;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 50px;
+        }
+
+        @media (max-width: 768px) {
+            .editor-container {
+                flex-direction: column;
+            }
+            
+            .preview-pane {
+                border-left: none;
+                border-top: 1px solid #e9ecef;
+            }
+            
+            body {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="editor-container">
+            <div class="editor-pane">
+                <div class="pane-header">✏️ Markdown Editor</div>
+                <textarea id="editor" placeholder="Enter your grading rubric in markdown format...
+
+Example:
+- Central claim: 
+	- (2) Clearly stated at the beginning of the text gives a clear direction toward the central claim.
+	- (1) Clearly stated, but buried too far into the text.
+	- (0) Implicit, ambiguous, or absent
+- Premises - Relevant: Are the premises relevant to the claim?
+	- (2) Most/all
+	- (1) About half
+	- (0) Less than half"></textarea>
+            </div>
+            
+            <div class="preview-pane">
+                <div class="pane-header">👀 Preview</div>
+                <div class="controls">
+                    <button class="btn save" onclick="saveToLocalStorage()">💾 Save</button>
+                    <button class="btn load" onclick="loadFromLocalStorage()">📂 Load</button>
+                    <button class="btn clear" onclick="clearLocalStorage()">🗑️ Clear</button>
+                    <button class="btn" onclick="foldAll()">Fold All</button>
+                    <button class="btn" onclick="unfoldAll()">Unfold All</button>
+                </div>
+                <div class="preview-content" id="preview">
+                    <div class="empty-state">
+                        Start typing in the editor to see your rubric preview here...
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="total-score" id="totalScore">
+            Total Maximum Score: 0 points
+        </div>
+    </div>
+
+    <script>
+        function parseMarkdownRubric(markdownText) {
+            const lines = markdownText.split('\n');
+            const rubric = [];
+            let currentCriterion = null;
+
+            lines.forEach(line => {
+                
+                // Skip empty lines
+                if (!line) return;
+                
+                // First-level bullet (criterion)
+                if (line.startsWith('- ') && !line.startsWith('\t') && !line.startsWith('  ')) {
+                    // Save previous criterion if exists
+                    if (currentCriterion) {
+                        rubric.push(currentCriterion);
+                    }
+                    
+                    // Start new criterion
+                    currentCriterion = {
+                        name: line.substring(2).replace(':', '').trim(),
+                        options: []
+                    };
+                }
+                // Second-level bullet (options with scores)
+                else if ((line.startsWith('\t- ') || line.startsWith('  - ')) && currentCriterion) {
+                    const optionText = line.replace(/^\s*- /, '');
+                    const scoreMatch = optionText.match(/^\((\d+)\)\s*(.*)$/);
+                    
+                    if (scoreMatch) {
+                        const score = parseInt(scoreMatch[1]);
+                        const text = scoreMatch[2].trim();
+                        
+                        currentCriterion.options.push({
+                            score: score,
+                            text: text
+                        });
+                    }
+                }
+            });
+            
+            // Add the last criterion
+            if (currentCriterion) {
+                rubric.push(currentCriterion);
+            }
+            
+            return rubric;
+        }
+
+        function renderRubric(rubric) {
+            if (rubric.length === 0) {
+                return '<div class="empty-state">Start typing in the editor to see your rubric preview here...</div>';
+            }
+
+            let html = '';
+            let totalMaxScore = 0;
+
+            rubric.forEach((criterion, index) => {
+                html += `<div class="criterion">`;
+                
+                // Find max score for this criterion
+                let maxScore = 0;
+                criterion.options.forEach(option => {
+                    if (option.score > maxScore) {
+                        maxScore = option.score;
+                    }
+                });
+                totalMaxScore += maxScore;
+
+                html += `<div class="criterion-header" onclick="toggleCriterion(${index})">`;
+                html += `<span class="fold-triangle" id="triangle-${index}">▼</span>`;
+                html += `<span class="criterion-name">${escapeHtml(criterion.name)}</span>`;
+                html += `<span class="criterion-score" id="score-${index}" style="display: none;">${maxScore} pts</span>`;
+                html += `<span class="criterion-summary" id="summary-${index}" style="display: none;"></span>`;
+                html += `</div>`;
+
+                html += `<div class="criterion-options" id="options-${index}">`;
+                criterion.options.forEach(option => {
+                    html += `<div class="option">`;
+                    html += `<span class="score-badge">${option.score}</span>`;
+                    html += `${escapeHtml(option.text)}`;
+                    html += `</div>`;
+                });
+                html += `</div>`;
+                
+                html += `</div>`;
+            });
+
+            // Update total score
+            document.getElementById('totalScore').textContent = `Total Maximum Score: ${totalMaxScore} points`;
+
+            // Store total score for percentage calculations
+            window.totalMaxScore = totalMaxScore;
+
+            return html;
+        }
+
+        function calculateCriterionPercentage(index, rubric) {
+            if (!window.totalMaxScore || window.totalMaxScore === 0) return '';
+            
+            const criterion = rubric[index];
+            let maxScore = 0;
+            criterion.options.forEach(option => {
+                if (option.score > maxScore) {
+                    maxScore = option.score;
+                }
+            });
+            
+            const percentage = Math.round((maxScore / window.totalMaxScore) * 100);
+            return `${percentage}%`;
+        }
+
+        function toggleCriterion(index) {
+            const triangle = document.getElementById(`triangle-${index}`);
+            const options = document.getElementById(`options-${index}`);
+            const score = document.getElementById(`score-${index}`);
+            const summary = document.getElementById(`summary-${index}`);
+            
+            if (options.classList.contains('collapsed')) {
+                options.classList.remove('collapsed');
+                triangle.classList.remove('collapsed');
+                score.style.display = 'none';
+                summary.style.display = 'none';
+            } else {
+                options.classList.add('collapsed');
+                triangle.classList.add('collapsed');
+                score.style.display = 'inline-block';
+                summary.style.display = 'inline-block';
+                
+                // Calculate and display percentage
+                const markdownText = document.getElementById('editor').value;
+                const rubric = parseMarkdownRubric(markdownText);
+                const percentage = calculateCriterionPercentage(index, rubric);
+                summary.textContent = percentage;
+            }
+        }
+
+        function foldAll() {
+            const triangles = document.querySelectorAll('.fold-triangle');
+            const optionsList = document.querySelectorAll('.criterion-options');
+            const scores = document.querySelectorAll('.criterion-score');
+            const summaries = document.querySelectorAll('.criterion-summary');
+            
+            // Parse rubric for percentage calculations
+            const markdownText = document.getElementById('editor').value;
+            const rubric = parseMarkdownRubric(markdownText);
+            
+            triangles.forEach(triangle => triangle.classList.add('collapsed'));
+            optionsList.forEach(options => options.classList.add('collapsed'));
+            scores.forEach(score => score.style.display = 'inline-block');
+            summaries.forEach((summary, index) => {
+                summary.style.display = 'inline-block';
+                const percentage = calculateCriterionPercentage(index, rubric);
+                summary.textContent = percentage;
+            });
+        }
+
+        // Local Storage Functions
+        function saveToLocalStorage() {
+            try {
+                const markdownText = document.getElementById('editor').value;
+                
+                // Store current folded state
+                const foldedStates = {};
+                document.querySelectorAll('.criterion-options').forEach((options, index) => {
+                    foldedStates[index] = options.classList.contains('collapsed');
+                });
+                
+                const rubricData = {
+                    markdown: markdownText,
+                    foldedStates: foldedStates,
+                    timestamp: new Date().toISOString()
+                };
+                
+                localStorage.setItem('grading-rubric', JSON.stringify(rubricData));
+                
+                // Visual feedback
+                if(event) {
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ Saved';
+                    btn.style.background = '#28a745';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '#28a745';
+                    }, 1000);
+                }
+                
+                
+            } catch (error) {
+                alert('Error saving to localStorage: ' + error.message);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const saved = localStorage.getItem('grading-rubric');
+                if (!saved) {
+                    alert('No saved rubric found in localStorage');
+                    return;
+                }
+                
+                const rubricData = JSON.parse(saved);
+                
+                // Load the markdown content
+                document.getElementById('editor').value = rubricData.markdown;
+                updatePreview();
+                
+                // Restore folded states if they exist
+                if (rubricData.foldedStates) {
+                    setTimeout(() => {
+                        Object.keys(rubricData.foldedStates).forEach(index => {
+                            if (rubricData.foldedStates[index]) {
+                                const triangle = document.getElementById(`triangle-${index}`);
+                                const options = document.getElementById(`options-${index}`);
+                                const score = document.getElementById(`score-${index}`);
+                                const summary = document.getElementById(`summary-${index}`);
+                                
+                                if (triangle && options && score && summary) {
+                                    options.classList.add('collapsed');
+                                    triangle.classList.add('collapsed');
+                                    score.style.display = 'inline-block';
+                                    summary.style.display = 'inline-block';
+                                    
+                                    // Recalculate percentage
+                                    const markdownText = document.getElementById('editor').value;
+                                    const rubric = parseMarkdownRubric(markdownText);
+                                    const percentage = calculateCriterionPercentage(parseInt(index), rubric);
+                                    summary.textContent = percentage;
+                                }
+                            }
+                        });
+                    }, 100);
+                }
+                
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✅ Loaded';
+                btn.style.background = '#17a2b8';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#17a2b8';
+                }, 1000);
+                
+                // Show timestamp if available
+                if (rubricData.timestamp) {
+                    const date = new Date(rubricData.timestamp);
+                    console.log('Loaded rubric saved on:', date.toLocaleString());
+                }
+                
+            } catch (error) {
+                alert('Error loading from localStorage: ' + error.message);
+            }
+        }
+
+        function clearLocalStorage() {
+            if (confirm('Are you sure you want to clear the saved rubric from localStorage?')) {
+                try {
+                    localStorage.removeItem('grading-rubric');
+                    
+                    // Visual feedback
+                    const btn = event.target;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '✅ Cleared';
+                    btn.style.background = '#dc3545';
+                    setTimeout(() => {
+                        btn.innerHTML = originalText;
+                        btn.style.background = '#dc3545';
+                    }, 1000);
+                    
+                } catch (error) {
+                    alert('Error clearing localStorage: ' + error.message);
+                }
+            }
+        }
+
+        // Auto-save functionality (optional)
+        function enableAutoSave() {
+            let autoSaveTimeout;
+            document.getElementById('editor').addEventListener('input', function() {
+                clearTimeout(autoSaveTimeout);
+                autoSaveTimeout = setTimeout(() => {
+                    saveToLocalStorage();
+                }, 2000); // Auto-save 2 seconds after last change
+            });
+        }
+
+        // Load saved rubric on page load
+        function loadOnStartup() {
+            try {
+                const saved = localStorage.getItem('grading-rubric');
+                if (saved) {
+                    const rubricData = JSON.parse(saved);
+                    document.getElementById('editor').value = rubricData.markdown;
+                    updatePreview();
+                    
+                    // Restore folded states
+                    if (rubricData.foldedStates) {
+                        setTimeout(() => {
+                            Object.keys(rubricData.foldedStates).forEach(index => {
+                                if (rubricData.foldedStates[index]) {
+                                    const triangle = document.getElementById(`triangle-${index}`);
+                                    const options = document.getElementById(`options-${index}`);
+                                    const score = document.getElementById(`score-${index}`);
+                                    const summary = document.getElementById(`summary-${index}`);
+                                    
+                                    if (triangle && options && score && summary) {
+                                        options.classList.add('collapsed');
+                                        triangle.classList.add('collapsed');
+                                        score.style.display = 'inline-block';
+                                        summary.style.display = 'inline-block';
+                                        
+                                        const markdownText = document.getElementById('editor').value;
+                                        const rubric = parseMarkdownRubric(markdownText);
+                                        const percentage = calculateCriterionPercentage(parseInt(index), rubric);
+                                        summary.textContent = percentage;
+                                    }
+                                }
+                            });
+                        }, 100);
+                    }
+                }
+            } catch (error) {
+                console.log('No saved rubric found or error loading:', error.message);
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function updatePreview() {
+            const markdownText = document.getElementById('editor').value;
+            const rubric = parseMarkdownRubric(markdownText);
+            
+            // Store current folded state before updating
+            const foldedStates = {};
+            document.querySelectorAll('.criterion-options').forEach((options, index) => {
+                foldedStates[index] = options.classList.contains('collapsed');
+            });
+            
+            const html = renderRubric(rubric);
+            document.getElementById('preview').innerHTML = html;
+            
+            // Restore folded states after rendering
+            Object.keys(foldedStates).forEach(index => {
+                if (foldedStates[index]) {
+                    const triangle = document.getElementById(`triangle-${index}`);
+                    const options = document.getElementById(`options-${index}`);
+                    const score = document.getElementById(`score-${index}`);
+                    const summary = document.getElementById(`summary-${index}`);
+                    
+                    if (triangle && options && score && summary) {
+                        options.classList.add('collapsed');
+                        triangle.classList.add('collapsed');
+                        score.style.display = 'inline-block';
+                        summary.style.display = 'inline-block';
+                        
+                        // Recalculate percentage for this criterion
+                        const percentage = calculateCriterionPercentage(parseInt(index), rubric);
+                        summary.textContent = percentage;
+                    }
+                }
+            });
+        }
+
+        // Handle tab key in editor
+        document.getElementById('editor').addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                
+                const textarea = e.target;
+                const start = textarea.selectionStart;
+                const end = textarea.selectionEnd;
+                
+                // Insert tab character at cursor position
+                textarea.value = textarea.value.substring(0, start) + '\t' + textarea.value.substring(end);
+                
+                // Move cursor after the inserted tab
+                textarea.selectionStart = textarea.selectionEnd = start + 1;
+                
+                // Update preview
+                updatePreview();
+            }
+        });
+
+        // Initialize
+        document.getElementById('editor').addEventListener('input', updatePreview);
+        
+        // Set initial content
+        const initialContent = `- Central claim: 
+\t- (2) Clearly stated at the beginning of the text gives a clear direction toward the central claim.
+\t- (1) Clearly stated, but buried too far into the text.
+\t- (0) Implicit, ambiguous, or absent
+- Premises - Relevant: Are the premises relevant to the claim?
+\t- (2) Most/all
+\t- (1) About half
+\t- (0) Less than half`;
+
+        document.getElementById('editor').value = initialContent;
+        updatePreview();
+
+        loadOnStartup();
+        enableAutoSave();
+    </script>
+</body>
+</html>

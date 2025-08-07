@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grading Rubric Application</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 15px;
+            background-color: #f8f9fa;
+            line-height: 1.4;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+        
+        .student-info {
+            background: #f8f9fa;
+            color: #333;
+            padding: 18px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            border: 2px solid #dee2e6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .student-info label {
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .student-name-input {
+            width: 280px;
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: box-shadow 0.2s;
+        }
+        
+        .student-name-input:focus {
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .criterion {
+            margin-bottom: 18px;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .criterion:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .criterion-header {
+            background: #495057;
+            color: white;
+            padding: 12px 18px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: background-color 0.3s ease;
+        }
+        
+        .criterion-header.missing {
+            background: #dc3545;
+            animation: pulse-red 2s ease-in-out;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { 
+                background: #dc3545; 
+            }
+            50% { 
+                background: #c82333; 
+            }
+        }
+        
+        .criterion-options {
+            padding: 12px;
+            background: #fafbfc;
+        }
+        
+        .option {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            border: 2px solid transparent;
+            background: white;
+            cursor: pointer;
+            min-height: 44px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+        
+        .option:hover {
+            background-color: #f8f9ff;
+            border-color: #e3f2fd;
+            transform: translateX(3px);
+        }
+        
+        .option:active {
+            transform: translateX(1px) scale(0.98);
+        }
+        
+        .option.selected {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+        
+        .option input[type="radio"] {
+            margin-right: 15px;
+            transform: scale(1.4);
+            accent-color: #007bff;
+        }
+        
+        .option.selected input[type="radio"] {
+            accent-color: white;
+        }
+        
+        .option label {
+            cursor: pointer;
+            flex: 1;
+            line-height: 1.4;
+            font-size: 14px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .option.selected label {
+            color: white;
+            font-weight: 500;
+        }
+        
+        .score-badge {
+            background: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            min-width: 32px;
+            text-align: center;
+        }
+        
+        .option.selected .score-badge {
+            background: rgba(255,255,255,0.9);
+            color: #007bff;
+        }
+        
+        .score-display {
+            background: #28a745;
+            color: white;
+            padding: 16px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+            margin: 20px 0;
+            border-radius: 10px;
+            min-height: 24px;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .score-display.incomplete {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 25px 0;
+            padding: 18px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-height: 44px;
+            min-width: 120px;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+        
+        .nav-button:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+        }
+        
+        .nav-button:active {
+            transform: translateY(0);
+        }
+        
+        .nav-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .student-counter {
+            font-size: 18px;
+            font-weight: 600;
+            color: #495057;
+            background: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .download-section {
+            border-top: 2px solid #e9ecef;
+            padding-top: 25px;
+            margin-top: 25px;
+        }
+        
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .download-button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            min-height: 44px;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+        
+        .download-button:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .clear-storage-button {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+        
+        .clear-storage-button:hover {
+            background: #c82333;
+        }
+        
+        .validation-warning {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+        }
+        
+        .download-button:active {
+            transform: translateY(0);
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        /* Mobile responsiveness */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .student-name-input {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .criterion-header {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+            
+            .criterion-options {
+                padding: 8px;
+            }
+            
+            .option {
+                padding: 10px 8px;
+                margin-bottom: 6px;
+            }
+            
+            .navigation {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-button {
+                width: 100%;
+                max-width: 200px;
+            }
+            
+            .download-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .download-button {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Grading Rubric Application</h1>
+        
+        <div class="student-info">
+            <div style="margin-bottom: 20px;">
+                <label for="rubricFile"><strong>Upload Rubric (Markdown):</strong></label>
+                <input type="file" id="rubricFile" accept=".md,.markdown,.txt" onchange="loadRubricFile()" style="margin-left: 10px;">
+                <button type="button" onclick="useDefaultRubric()" style="margin-left: 10px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px;">Use Default Rubric</button>
+                <button type="button" class="clear-storage-button" onclick="clearLocalStorage()">Clear All Data</button>
+            </div>
+            <label for="studentName"><strong>Student Name:</strong></label>
+            <input type="text" id="studentName" class="student-name-input" placeholder="Enter student name">
+        </div>
+        
+        <form id="gradingForm">
+            <div id="criteriaContainer"></div>
+            <div id="validationWarning" class="validation-warning" style="display: none;">
+                Please select an option for all criteria before proceeding to the next student.
+            </div>
+        </form>
+        
+        <div class="score-display" id="scoreDisplay">
+            Total Score: Select all criteria to see score
+        </div>
+        
+        <div class="navigation">
+            <button type="button" class="nav-button" id="backButton" onclick="navigateStudent(-1)">← Previous Student</button>
+            <div class="student-counter" id="studentCounter">Student 1</div>
+            <button type="button" class="nav-button" id="nextButton" onclick="navigateStudent(1)">Next Student →</button>
+        </div>
+        
+        <div class="download-section">
+            <h3 style="text-align: center; margin-bottom: 20px;">Download Results</h3>
+            <div class="download-buttons">
+                <button type="button" class="download-button" onclick="downloadCSV()">Download CSV</button>
+                <button type="button" class="download-button" onclick="downloadJSON()">Download JSON</button>
+                <button type="button" class="download-button" onclick="downloadMarkdownZip()">Download Markdown (ZIP)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        // the following default is not used, but kept to show the structure
+        /*
+        const defaultRubricData = [
+            {
+                name: "Central claim",
+                options: [
+                    { score: 2, text: "Clearly stated at the beginning of the text gives a clear direction toward the central claim." },
+                    { score: 1, text: "Clearly stated, but buried too far into the text." },
+                    { score: 0, text: "Implicit, ambiguous, or absent" }
+                ]
+            },
+            {
+                name: "Premises - Relevant: Are the premises relevant to the claim?",
+                options: [
+                    { score: 2, text: "Most/all" },
+                    { score: 1, text: "About half" },
+                    { score: 0, text: "Less than half" }
+                ]
+            }
+        ];
+        */
+
+
+        // Default rubric data
+        const defaultRubricMd = 
+`- Central claim: 
+	- (2) Clearly stated at the beginning of the text gives a clear direction toward the central claim.
+	- (1) Clearly stated, but buried too far into the text.
+	- (0) Implicit, ambiguous, or absent
+- Premises - Relevant: Are the premises relevant to the claim?
+	- (2) Most/all
+	- (1) About half
+	- (0) Less than half`;  // important: the second level begins with a tab
+
+
+
+        // Markdown parser functions
+        function parseMarkdownRubric(markdownText) {
+            const lines = markdownText.split('\n');
+            const rubric = [];
+            let currentCriterion = null;
+
+            lines.forEach(line => {
+                
+                // Skip empty lines
+                if (!line) return;
+                
+                // First-level bullet (criterion)
+                if (line.startsWith('- ') && !line.startsWith('\t') && !line.startsWith('  ')) {
+                    // Save previous criterion if exists
+                    if (currentCriterion) {
+                        rubric.push(currentCriterion);
+                    }
+                    
+                    // Start new criterion
+                    currentCriterion = {
+                        name: line.substring(2).replace(':', '').trim(),
+                        options: []
+                    };
+                }
+                // Second-level bullet (options with scores)
+                else if ((line.startsWith('\t- ') || line.startsWith('  - ')) && currentCriterion) {
+                    const optionText = line.replace(/^\s*- /, '');
+                    const scoreMatch = optionText.match(/^\((\d+)\)\s*(.*)$/);
+                    
+                    if (scoreMatch) {
+                        const score = parseInt(scoreMatch[1]);
+                        const text = scoreMatch[2].trim();
+                        
+                        currentCriterion.options.push({
+                            score: score,
+                            text: text
+                        });
+                    }
+                }
+            });
+            
+            // Add the last criterion
+            if (currentCriterion) {
+                rubric.push(currentCriterion);
+            }
+            
+            return rubric;
+        }
+
+        // Current rubric data (can be default or loaded from file)
+        // let rubricData = [...defaultRubricData];
+        let rubricData = parseMarkdownRubric(defaultRubricMd);
+
+        // Application state
+        let students = [{ name: '', scores: {} }];
+        let currentStudentIndex = 0;
+
+        // Local storage keys
+        const STORAGE_KEYS = {
+            students: 'gradingApp_students',
+            currentIndex: 'gradingApp_currentIndex',
+            rubricData: 'gradingApp_rubricData'
+        };
+
+        function loadRubricFile() {
+            const fileInput = document.getElementById('rubricFile');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const markdownText = e.target.result;
+                    try {
+                        const parsedRubric = parseMarkdownRubric(markdownText);
+                        
+                        if (parsedRubric.length === 0) {
+                            alert('No valid rubric criteria found in the markdown file. Please check the format.');
+                            return;
+                        }
+                        
+                        rubricData = parsedRubric;
+                        saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
+                        
+                        // Reset students data when new rubric is loaded
+                        students = [{ name: '', scores: {} }];
+                        currentStudentIndex = 0;
+                        saveToLocalStorage(STORAGE_KEYS.students, students);
+                        saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+                        
+                        initializeRubric();
+                        loadStudentData();
+                        
+                        alert(`Rubric loaded successfully! Found ${parsedRubric.length} criteria.`);
+                    } catch (error) {
+                        alert('Error parsing markdown file: ' + error.message);
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function useDefaultRubric() {
+            rubricData = parseMarkdownRubric(defaultRubricMd);
+            saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
+            
+            // Reset students data when switching to default rubric
+            students = [{ name: '', scores: {} }];
+            currentStudentIndex = 0;
+            saveToLocalStorage(STORAGE_KEYS.students, students);
+            saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+            
+            initializeRubric();
+            loadStudentData();
+            
+            // Clear file input
+            document.getElementById('rubricFile').value = '';
+            
+            alert('Default rubric restored.');
+        }
+
+        // Local storage functions
+        function saveToLocalStorage(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify(data));
+            } catch (error) {
+                console.warn('Could not save to localStorage:', error);
+            }
+        }
+
+        function loadFromLocalStorage(key, defaultValue = null) {
+            try {
+                const item = localStorage.getItem(key);
+                return item ? JSON.parse(item) : defaultValue;
+            } catch (error) {
+                console.warn('Could not load from localStorage:', error);
+                return defaultValue;
+            }
+        }
+
+        function initializeFromLocalStorage() {
+            // Load rubric data
+            const savedRubric = loadFromLocalStorage(STORAGE_KEYS.rubricData);
+            if (savedRubric && savedRubric.length > 0) {
+                rubricData = savedRubric;
+            }
+            
+            // Load students data
+            const savedStudents = loadFromLocalStorage(STORAGE_KEYS.students);
+            if (savedStudents && savedStudents.length > 0) {
+                students = savedStudents;
+            }
+            
+            // Load current index
+            const savedIndex = loadFromLocalStorage(STORAGE_KEYS.currentIndex);
+            if (savedIndex !== null && savedIndex >= 0 && savedIndex < students.length) {
+                currentStudentIndex = savedIndex;
+            }
+        }
+
+        function initializeRubric() {
+            const container = document.getElementById('criteriaContainer');
+            container.innerHTML = '';
+
+            rubricData.forEach((criterion, criterionIndex) => {
+                const criterionDiv = document.createElement('div');
+                criterionDiv.className = 'criterion';
+                
+                criterionDiv.innerHTML = `
+                    <div class="criterion-header">${criterion.name}</div>
+                    <div class="criterion-options">
+                        ${criterion.options.map((option, optionIndex) => `
+                            <div class="option" onclick="selectOption(${criterionIndex}, ${optionIndex})">
+                                <input type="radio" 
+                                       id="criterion_${criterionIndex}_${optionIndex}" 
+                                       name="criterion_${criterionIndex}" 
+                                       value="${option.score}"
+                                       onchange="updateScore()">
+                                <div class="score-badge">${option.score}</div>
+                                <label for="criterion_${criterionIndex}_${optionIndex}">
+                                    ${option.text}
+                                </label>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                container.appendChild(criterionDiv);
+            });
+        }
+
+        function updateScore() {
+            const currentStudent = students[currentStudentIndex];
+            let totalScore = 0;
+            let allSelected = true;
+
+            rubricData.forEach((criterion, criterionIndex) => {
+                const selectedOption = document.querySelector(`input[name="criterion_${criterionIndex}"]:checked`);
+                if (selectedOption) {
+                    const score = parseInt(selectedOption.value);
+                    currentStudent.scores[criterionIndex] = {
+                        criterionName: criterion.name,
+                        score: score,
+                        optionText: criterion.options.find(opt => opt.score === score).text
+                    };
+                    totalScore += score;
+                } else {
+                    allSelected = false;
+                }
+            });
+
+            // Save to local storage after each update
+            saveToLocalStorage(STORAGE_KEYS.students, students);
+
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            if (allSelected) {
+                scoreDisplay.textContent = `Total Score: ${totalScore} / ${getMaxScore()}`;
+                scoreDisplay.className = 'score-display';
+            } else {
+                scoreDisplay.textContent = 'Total Score: Select all criteria to see score';
+                scoreDisplay.className = 'score-display incomplete';
+            }
+            
+            // Hide validation warning and clear highlighting if all criteria are now selected
+            if (allSelected) {
+                document.getElementById('validationWarning').style.display = 'none';
+                clearCriterionHighlighting();
+            }
+        }
+
+        function getMaxScore() {
+            return rubricData.reduce((sum, criterion) => {
+                return sum + Math.max(...criterion.options.map(opt => opt.score));
+            }, 0);
+        }
+
+        function saveCurrentStudentData() {
+            const currentStudent = students[currentStudentIndex];
+            currentStudent.name = document.getElementById('studentName').value;
+            
+            // Save to local storage
+            saveToLocalStorage(STORAGE_KEYS.students, students);
+        }
+
+        function loadStudentData() {
+            const currentStudent = students[currentStudentIndex];
+            
+            // Clear any previous highlighting when loading new student
+            clearCriterionHighlighting();
+            
+            // Set default name if empty
+            if (!currentStudent.name) {
+                const studentNumber = String(currentStudentIndex + 1).padStart(2, '0');
+                currentStudent.name = `Author${studentNumber}`;
+                saveToLocalStorage(STORAGE_KEYS.students, students);
+            }
+            
+            document.getElementById('studentName').value = currentStudent.name;
+            
+            // Clear all radio buttons first
+            document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.checked = false;
+            });
+            
+            // Load saved scores
+            rubricData.forEach((criterion, criterionIndex) => {
+                const savedScore = currentStudent.scores[criterionIndex];
+                if (savedScore) {
+                    const radioButton = document.querySelector(`input[name="criterion_${criterionIndex}"][value="${savedScore.score}"]`);
+                    if (radioButton) {
+                        radioButton.checked = true;
+                    }
+                }
+            });
+            
+            updateScore();
+            updateVisualSelection();
+            document.getElementById('studentCounter').textContent = `Student ${currentStudentIndex + 1}`;
+            document.getElementById('backButton').disabled = currentStudentIndex === 0;
+            
+            // Hide validation warning when loading student data
+            document.getElementById('validationWarning').style.display = 'none';
+        }
+
+        function navigateStudent(direction) {
+            // Validation before moving forward
+            if (direction === 1) {
+                const firstMissingCriterion = findFirstMissingCriterion();
+                if (firstMissingCriterion !== -1) {
+                    highlightMissingCriterion(firstMissingCriterion);
+                    document.getElementById('validationWarning').style.display = 'block';
+                    return;
+                }
+            }
+            
+            // Clear any previous highlighting
+            clearCriterionHighlighting();
+            
+            saveCurrentStudentData();
+            
+            if (direction === 1) {
+                // Moving forward
+                if (currentStudentIndex === students.length - 1) {
+                    // Add new student
+                    students.push({ name: '', scores: {} });
+                }
+                currentStudentIndex++;
+            } else if (direction === -1 && currentStudentIndex > 0) {
+                // Moving backward
+                currentStudentIndex--;
+            }
+            
+            // Save current index to local storage
+            saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+            saveToLocalStorage(STORAGE_KEYS.students, students);
+            
+            loadStudentData();
+        }
+        
+        function findFirstMissingCriterion() {
+            for (let criterionIndex = 0; criterionIndex < rubricData.length; criterionIndex++) {
+                const selectedOption = document.querySelector(`input[name="criterion_${criterionIndex}"]:checked`);
+                if (!selectedOption) {
+                    return criterionIndex;
+                }
+            }
+            return -1; // All criteria selected
+        }
+        
+        function highlightMissingCriterion(criterionIndex) {
+            // Clear any previous highlighting
+            clearCriterionHighlighting();
+            
+            // Find the criterion element
+            const criterionElement = document.querySelector(`#criteriaContainer .criterion:nth-child(${criterionIndex + 1})`);
+            const headerElement = criterionElement?.querySelector('.criterion-header');
+            
+            if (headerElement) {
+                // Add highlighting class
+                headerElement.classList.add('missing');
+                
+                // Scroll to the criterion with some offset for better visibility
+                criterionElement.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Remove highlighting after animation completes
+                setTimeout(() => {
+                    headerElement.classList.remove('missing');
+                }, 3000);
+            }
+        }
+        
+        function clearCriterionHighlighting() {
+            document.querySelectorAll('.criterion-header.missing').forEach(header => {
+                header.classList.remove('missing');
+            });
+        }
+        
+        function isAllCriteriaSelected() {
+            return findFirstMissingCriterion() === -1;
+        }
+
+        function downloadCSV() {
+            let csv = 'Student Name';
+            rubricData.forEach(criterion => {
+                csv += ',' + '"' + criterion.name + '"';
+            });
+            csv += ',Total Score\n';
+
+            students.forEach(student => {
+                if (student.name || Object.keys(student.scores).length > 0) {
+                    csv += '"' + (student.name || 'Unnamed Student') + '"';
+                    let totalScore = 0;
+                    
+                    rubricData.forEach((criterion, criterionIndex) => {
+                        const score = student.scores[criterionIndex];
+                        if (score) {
+                            csv += ',' + score.score;
+                            totalScore += score.score;
+                        } else {
+                            csv += ',';
+                        }
+                    });
+                    
+                    csv += ',' + totalScore + '\n';
+                }
+            });
+
+            downloadFile(csv, 'grading_results.csv', 'text/csv');
+        }
+
+        function downloadJSON() {
+            const results = {
+                rubric: rubricData,
+                students: students.filter(student => student.name || Object.keys(student.scores).length > 0),
+                exportDate: new Date().toISOString()
+            };
+
+            downloadFile(JSON.stringify(results, null, 2), 'grading_results.json', 'application/json');
+        }
+
+        function downloadMarkdownZip() {
+            const zip = new JSZip();
+            let hasValidStudents = false;
+            
+            students.forEach((student, studentIndex) => {
+                if (student.name || Object.keys(student.scores).length > 0) {
+                    hasValidStudents = true;
+                    const studentName = student.name || `Author${String(studentIndex + 1).padStart(2, '0')}`;
+                    let markdown = `# Grading Results - ${studentName}\n\n`;
+                    
+                    let totalScore = 0;
+                    rubricData.forEach((criterion, criterionIndex) => {
+                        const score = student.scores[criterionIndex];
+                        if (score) {
+                            markdown += `- ✔ **${criterion.name}**: ${score.score} points - ${score.optionText}\n`;
+                            totalScore += score.score;
+                        } else {
+                            markdown += `- **${criterion.name}**: Not graded\n`;
+                        }
+                    });
+                    
+                    markdown += `\n**Total Score: ${totalScore} / ${getMaxScore()}**\n\n`;
+                    markdown += `*Generated on ${new Date().toLocaleString()}*\n`;
+                    
+                    // Clean filename by removing invalid characters
+                    const cleanFileName = studentName.replace(/[^a-zA-Z0-9_-]/g, '_');
+                    zip.file(`${cleanFileName}.md`, markdown);
+                }
+            });
+            
+            if (!hasValidStudents) {
+                alert('No student data found to export.');
+                return;
+            }
+            
+            zip.generateAsync({ type: "blob" }).then(function(content) {
+                const url = URL.createObjectURL(content);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `grading_results_${new Date().toISOString().split('T')[0]}.zip`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        function clearLocalStorage() {
+            const confirmed = confirm('Are you sure you want to clear all saved data? This action cannot be undone.\n\nThis will remove:\n- All student names and scores\n- Current rubric data\n- Navigation position');
+            
+            if (confirmed) {
+                try {
+                    localStorage.removeItem(STORAGE_KEYS.students);
+                    localStorage.removeItem(STORAGE_KEYS.currentIndex);
+                    localStorage.removeItem(STORAGE_KEYS.rubricData);
+                    
+                    // Reset application state
+                    rubricData = parseMarkdownRubric(defaultRubricMd);
+                    students = [{ name: '', scores: {} }];
+                    currentStudentIndex = 0;
+                    
+                    // Clear file input
+                    document.getElementById('rubricFile').value = '';
+                    
+                    // Reinitialize
+                    initializeRubric();
+                    loadStudentData();
+                    
+                    alert('All data has been cleared successfully.');
+                } catch (error) {
+                    alert('Error clearing data: ' + error.message);
+                }
+            }
+        }
+
+        function downloadFile(content, filename, contentType) {
+            const blob = new Blob([content], { type: contentType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // text area fallback
+            let exportTextarea = document.querySelector("#export");
+
+            if(!exportTextarea) {
+                exportTextarea = document.createElement("textarea");
+                exportTextarea.setAttribute('id', 'export');
+                document.body.appendChild(exportTextarea);
+
+                const copyBtn = document.createElement("button");
+                copyBtn.innerHTML = "Copy";
+                copyBtn.setAttribute('type', 'button');
+                copyBtn.setAttribute('class', 'download-button');
+
+                copyBtn.addEventListener("click", function() {
+                  var copyText = document.querySelector("#export");
+                  copyText.select();
+                  document.execCommand("copy");
+                });
+                document.body.appendChild(copyBtn);
+            }
+
+            exportTextarea.value = content;
+            
+
+        }
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeFromLocalStorage();
+            initializeRubric();
+            loadStudentData();
+        });
+
+        // Function to handle option selection (for touch-friendly clicking)
+        function selectOption(criterionIndex, optionIndex) {
+            const radioButton = document.getElementById(`criterion_${criterionIndex}_${optionIndex}`);
+            radioButton.checked = true;
+            updateVisualSelection();
+            updateScore();
+        }
+
+        // Function to update visual selection state
+        function updateVisualSelection() {
+            document.querySelectorAll('.option').forEach(option => {
+                const radio = option.querySelector('input[type="radio"]');
+                if (radio && radio.checked) {
+                    option.classList.add('selected');
+                } else {
+                    option.classList.remove('selected');
+                }
+            });
+        }
+
+        // Save data when student name changes
+        document.getElementById('studentName').addEventListener('input', function() {
+            saveCurrentStudentData();
+        });
+    </script>
+</body>
+</html>
