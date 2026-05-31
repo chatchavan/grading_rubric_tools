@@ -318,6 +318,77 @@
             margin: 20px 0;
         }
         
+        /* Layout toggle button */
+        .layout-toggle-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .layout-toggle-btn {
+            background: #f1f3f5;
+            color: #495057;
+            border: 1px solid #ced4da;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .layout-toggle-btn:hover {
+            background: #e2e6ea;
+            border-color: #adb5bd;
+        }
+
+        .layout-toggle-btn.active {
+            background: #495057;
+            color: white;
+            border-color: #495057;
+        }
+
+        /* Column layout overrides */
+        .column-layout .criterion-options {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            align-items: stretch;
+        }
+
+        .column-layout .option {
+            flex: 1;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            min-height: 90px;
+            margin-bottom: 0;
+            padding: 12px 8px;
+        }
+
+        .column-layout .option:hover {
+            transform: translateY(-3px);
+        }
+
+        .column-layout .option input[type="radio"] {
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
+
+        .column-layout .score-badge {
+            margin-right: 0;
+            margin-bottom: 8px;
+        }
+
+        .column-layout .option label {
+            text-align: center;
+            font-size: 13px;
+        }
+
         /* Mobile responsiveness */
         @media (max-width: 768px) {
             body {
@@ -389,6 +460,11 @@
         </div>
         
         <form id="gradingForm">
+            <div class="layout-toggle-bar">
+                <button type="button" id="layoutToggleBtn" class="layout-toggle-btn" onclick="toggleLayout()">
+                    <span id="layoutToggleIcon">⊟</span> Column View
+                </button>
+            </div>
             <div id="criteriaContainer"></div>
             <div id="validationWarning" class="validation-warning" style="display: none;">
                 Please select an option for all criteria before proceeding to the next student.
@@ -950,6 +1026,28 @@
             exportTextarea.value = content;
             
 
+        }
+
+        // Layout toggle state
+        let isColumnLayout = false;
+
+        function toggleLayout() {
+            isColumnLayout = !isColumnLayout;
+            const container = document.getElementById('criteriaContainer');
+            const btn = document.getElementById('layoutToggleBtn');
+            const icon = document.getElementById('layoutToggleIcon');
+
+            if (isColumnLayout) {
+                container.classList.add('column-layout');
+                btn.classList.add('active');
+                icon.textContent = '⊞';
+                btn.childNodes[btn.childNodes.length - 1].textContent = ' Row View';
+            } else {
+                container.classList.remove('column-layout');
+                btn.classList.remove('active');
+                icon.textContent = '⊟';
+                btn.childNodes[btn.childNodes.length - 1].textContent = ' Column View';
+            }
         }
 
         // Initialize the application
