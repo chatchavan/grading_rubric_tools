@@ -866,18 +866,22 @@
                     let markdown = `# Grading Results - ${studentName}\n\n`;
                     
                     let totalScore = 0;
+                    let rubricMarkdown = "";
                     rubricData.forEach((criterion, criterionIndex) => {
                         const score = student.scores[criterionIndex];
+                        rubricMarkdown += `\n\n- ${criterion.name}:\n`;
+                        criterion.options.forEach(option => {
+                            const isSelected = score && score.score === option.score;
+                            const pointer = isSelected ? '👉 ' : '';
+                            rubricMarkdown += `\t- ${pointer}(${option.score}) ${option.text}\n`;
+                        });
                         if (score) {
-                            markdown += `- ✔ **${criterion.name}**: ${score.score} points - ${score.optionText}\n`;
                             totalScore += score.score;
-                        } else {
-                            markdown += `- **${criterion.name}**: Not graded\n`;
                         }
                     });
                     
-                    markdown += `\n**Total Score: ${totalScore} / ${getMaxScore()}**\n\n`;
-                    markdown += `*Generated on ${new Date().toLocaleString()}*\n`;
+                    markdown += `\n**Total Score: ${totalScore} / ${getMaxScore()}**\n ${rubricMarkdown}\n`;
+                    // markdown += `*Generated on ${new Date().toLocaleString()}*\n`;
                     
                     // Clean filename by removing invalid characters
                     const cleanFileName = studentName.replace(/[^a-zA-Z0-9_-]/g, '_');
