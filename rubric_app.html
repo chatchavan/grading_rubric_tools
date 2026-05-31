@@ -646,7 +646,7 @@
         function updateScore() {
             const currentStudent = students[currentStudentIndex];
             let totalScore = 0;
-            let allSelected = true;
+            let selectedCount = 0;
 
             rubricData.forEach((criterion, criterionIndex) => {
                 const selectedOption = document.querySelector(`input[name="criterion_${criterionIndex}"]:checked`);
@@ -658,27 +658,21 @@
                         optionText: criterion.options.find(opt => opt.score === score).text
                     };
                     totalScore += score;
-                } else {
-                    allSelected = false;
+                    selectedCount++;
                 }
             });
 
             // Save to local storage after each update
             saveToLocalStorage(STORAGE_KEYS.students, students);
 
+            const allSelected = selectedCount === rubricData.length;
             const scoreDisplay = document.getElementById('scoreDisplay');
             if (allSelected) {
-                scoreDisplay.textContent = `Total Score: ${totalScore} / ${getMaxScore()}`;
+                scoreDisplay.innerHTML = `Total Score: ${totalScore} / ${getMaxScore()}`;
                 scoreDisplay.className = 'score-display';
             } else {
-                scoreDisplay.textContent = 'Total Score: Select all criteria to see score';
+                scoreDisplay.innerHTML = `Total Score: ${totalScore} / ${getMaxScore()}<br><small style="font-size: 13px; font-weight: 400; opacity: 0.85;">${selectedCount} of ${rubricData.length} criteria scored</small>`;
                 scoreDisplay.className = 'score-display incomplete';
-            }
-            
-            // Hide validation warning and clear highlighting if all criteria are now selected
-            if (allSelected) {
-                document.getElementById('validationWarning').style.display = 'none';
-                clearCriterionHighlighting();
             }
         }
 
@@ -731,22 +725,9 @@
             updateVisualSelection();
             document.getElementById('studentCounter').textContent = `Student ${currentStudentIndex + 1}`;
             document.getElementById('backButton').disabled = currentStudentIndex === 0;
-            
-            // Hide validation warning when loading student data
-            document.getElementById('validationWarning').style.display = 'none';
         }
 
         function navigateStudent(direction) {
-            // Validation before moving forward
-            if (direction === 1) {
-                const firstMissingCriterion = findFirstMissingCriterion();
-                if (firstMissingCriterion !== -1) {
-                    highlightMissingCriterion(firstMissingCriterion);
-                    document.getElementById('validationWarning').style.display = 'block';
-                    return;
-                }
-            }
-            
             // Clear any previous highlighting
             clearCriterionHighlighting();
             
@@ -869,7 +850,7 @@
                     let rubricMarkdown = "";
                     rubricData.forEach((criterion, criterionIndex) => {
                         const score = student.scores[criterionIndex];
-                        rubricMarkdown += `\n\n- ${criterion.name}:\n`;
+                        rubricMarkdown += `\n\n- ${criterion.name}:${score ? '' : '  (not graded)'}\n`;
                         criterion.options.forEach(option => {
                             const isSelected = score && score.score === option.score;
                             const pointer = isSelected ? '👉 ' : '';
