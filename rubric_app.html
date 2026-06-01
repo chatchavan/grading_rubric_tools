@@ -512,6 +512,10 @@
                 <button type="button" onclick="useDefaultRubric()" class="use-default-rubric-button">Use Default Rubric</button>
                 <button type="button" class="clear-storage-button" onclick="clearLocalStorage()">Clear All Data</button>
             </div>
+            <div style="margin-bottom: 20px;">
+                <label for="jsonFileInput"><strong>Upload JSON:</strong></label>
+                <input type="file" id="jsonFileInput" accept=".json" onchange="uploadJSON()">
+            </div>
             <label for="studentName"><strong>Student Name:</strong></label>
             <input type="text" id="studentName" class="student-name-input" placeholder="Enter student name">
         </div>
@@ -1396,10 +1400,56 @@
             });
         }
 
+
+        function setEqual(a, b) {
+          const setA = new Set(a);
+          const setB = new Set(b);
+
+          if (setA.size !== setB.size) return false;
+
+          for (const v of setA) {
+            if (!setB.has(v)) return false;
+          }
+          return true;
+        }
+
+
         // Save data when student name changes
         document.getElementById('studentName').addEventListener('input', function() {
             saveCurrentStudentData();
         });
+    
+        // Upload JSON functionality
+        function uploadJSON() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const file = fileInput.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const uploadedData = JSON.parse(e.target.result);
+                        
+                        if (!setEqual(Object.keys(uploadedData), Object.values(STORAGE_KEYS))) {
+                            throw new Error("The uploaded JSON doesn't have required keys.");
+                        }
+
+                        doClearLocalStorage();
+                        
+                        // Restore from uploaded JSON
+                        Object.keys(uploadedData).forEach(key => {
+                            saveToLocalStorage(key, uploadedData[key]);
+                        });
+                        
+                        // Refresh the app state
+                        location.reload();
+                    } catch (error) {
+                        alert('Invalid JSON file. Please upload a valid file.');
+                    }
+                };
+                reader.readAsText(file);
+            }
+        }
     </script>
 </body>
 </html>
