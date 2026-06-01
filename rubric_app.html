@@ -1260,27 +1260,31 @@
             
             if (confirmed) {
                 try {
-                    localStorage.removeItem(STORAGE_KEYS.students);
-                    localStorage.removeItem(STORAGE_KEYS.currentIndex);
-                    localStorage.removeItem(STORAGE_KEYS.rubricData);
-                    
-                    // Reset application state
-                    rubricData = parseMarkdownRubric(defaultRubricMd);
-                    students = [{ name: '', scores: {} }];
-                    currentStudentIndex = 0;
-                    
-                    // Clear file input
-                    document.getElementById('rubricFile').value = '';
-                    
-                    // Reinitialize
-                    initializeRubric();
-                    loadStudentData();
+                    doClearLocalStorage();
                     
                     alert('All data has been cleared successfully.');
                 } catch (error) {
                     alert('Error clearing data: ' + error.message);
                 }
             }
+        }
+
+        function doClearLocalStorage() {
+            localStorage.removeItem(STORAGE_KEYS.students);
+            localStorage.removeItem(STORAGE_KEYS.currentIndex);
+            localStorage.removeItem(STORAGE_KEYS.rubricData);
+            
+            // Reset application state
+            rubricData = parseMarkdownRubric(defaultRubricMd);
+            students = [{ name: '', scores: {} }];
+            currentStudentIndex = 0;
+            
+            // Clear file input
+            document.getElementById('rubricFile').value = '';
+            
+            // Reinitialize
+            initializeRubric();
+            loadStudentData();
         }
 
         function downloadFile(content, filename, contentType) {
