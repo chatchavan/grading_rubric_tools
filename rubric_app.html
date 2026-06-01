@@ -999,10 +999,10 @@
 
                 // ── Student name ──────────────────────────────────────────
                 doc.setFont('helvetica', 'bold');
-                doc.setFontSize(22);
+                doc.setFontSize(14);
                 doc.setTextColor(...rgb('#2c3e50'));
                 doc.text(studentName, ML, y);
-                y += 10;
+                y += 5;
 
                 // ── Score bar ─────────────────────────────────────────────
                 const totalScore  = Object.values(student.scores).reduce((s, v) => s + v.score, 0);
@@ -1036,43 +1036,99 @@
                     hLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
                     y += hH + 1;
 
-                    // Option rows
-                    criterion.options.forEach(option => {
-                        const isSelected = savedScore && savedScore.score === option.score;
+                    if (isColumnLayout) {
+                        // ── Column mode: all options side-by-side ──────────────
+                        const N   = criterion.options.length;
+                        const gap = 2;                          // mm gap between columns
+                        const colW = (CW - gap * (N - 1)) / N;
 
-                        doc.setFontSize(9);
-                        const oLines = doc.splitTextToSize(option.text, CW - 22);
-                        // 4 mm per line + 6 mm padding, min 10 mm
-                        const oH = Math.max(10, oLines.length * 4 + 6);
-                        guard(oH + 2);
-
-                        // Row background
-                        doc.setFillColor(...(isSelected ? rgb('#007bff') : [255, 255, 255]));
-                        doc.roundedRect(ML, y, CW, oH, 1.5, 1.5, 'F');
-                        if (!isSelected) {
-                            doc.setDrawColor(220, 224, 230);
-                            doc.setLineWidth(0.2);
-                            doc.roundedRect(ML, y, CW, oH, 1.5, 1.5, 'S');
-                        }
-
-                        // Score badge (pill)
-                        doc.setFillColor(...(isSelected ? [255,255,255] : rgb('#28a745')));
-                        doc.roundedRect(ML + 2, y + oH/2 - 3.5, 10, 7, 1.5, 1.5, 'F');
-                        doc.setFont('helvetica', 'bold');
+                        // Pre-measure every option so all columns share the same height
                         doc.setFontSize(8);
-                        doc.setTextColor(...(isSelected ? rgb('#007bff') : [255,255,255]));
-                        doc.text(String(option.score), ML + 7, y + oH/2 + 1.3, { align: 'center' });
+                        let maxLines = 1;
+                        criterion.options.forEach(opt => {
+                            const ls = doc.splitTextToSize(opt.text, colW - 6);
+                            if (ls.length > maxLines) maxLines = ls.length;
+                        });
 
-                        // Option text — vertically centred
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(9);
-                        doc.setTextColor(...(isSelected ? [255,255,255] : [50,50,50]));
-                        // tY: baseline of first line, chosen to centre the text block
-                        const tY = y + (oH - oLines.length * 4) / 2 + 5;
-                        doc.text(oLines, ML + 15, tY);
+                        const lineH8   = 8 * 0.3528 * 1.15;   // ≈ 3.25 mm/line at 8 pt
+                        const badgeH   = 7;
+                        const innerGap = 3;
+                        // top pad (4) + badge + gap + text lines + bottom pad (4)
+                        const colH = 4 + badgeH + innerGap + maxLines * lineH8 + 4;
+                        guard(colH + 2);
 
-                        y += oH + 2;
-                    });
+                        criterion.options.forEach((option, oi) => {
+                            const isSelected = savedScore && savedScore.score === option.score;
+                            const colX = ML + oi * (colW + gap);
+
+                            // Column background
+                            doc.setFillColor(...(isSelected ? rgb('#007bff') : [255, 255, 255]));
+                            doc.roundedRect(colX, y, colW, colH, 1.5, 1.5, 'F');
+                            if (!isSelected) {
+                                doc.setDrawColor(220, 224, 230);
+                                doc.setLineWidth(0.2);
+                                doc.roundedRect(colX, y, colW, colH, 1.5, 1.5, 'S');
+                            }
+
+                            // Score badge — centred horizontally at top
+                            const bW = Math.min(colW * 0.2, 22);
+                            const bX = colX + colW / 2 - bW / 2;
+                            doc.setFillColor(...(isSelected ? [255, 255, 255] : rgb('#28a745')));
+                            doc.roundedRect(bX, y + 4, bW, badgeH, 1.5, 1.5, 'F');
+                            doc.setFont('helvetica', 'bold');
+                            doc.setFontSize(9);
+                            doc.setTextColor(...(isSelected ? rgb('#007bff') : [255, 255, 255]));
+                            doc.text(String(option.score), colX + colW / 2, y + 4 + badgeH - 2.2, { align: 'center' });
+
+                            // Option text — centred below badge
+                            doc.setFont('helvetica', 'normal');
+                            doc.setFontSize(8);
+                            doc.setTextColor(...(isSelected ? [255, 255, 255] : [50, 50, 50]));
+                            const oLines  = doc.splitTextToSize(option.text, colW - 6);
+                            const textY   = y + 4 + badgeH + innerGap + 3;
+                            doc.text(oLines, colX + colW / 2, textY, { align: 'center' });
+                        });
+
+                        y += colH + 4;
+
+                    } else {
+                        // ── Row mode: one option per row ──────────────────────
+                        criterion.options.forEach(option => {
+                            const isSelected = savedScore && savedScore.score === option.score;
+
+                            doc.setFontSize(9);
+                            const oLines = doc.splitTextToSize(option.text, CW - 22);
+                            // 4 mm per line + 6 mm padding, min 10 mm
+                            const oH = Math.max(10, oLines.length * 4 + 6);
+                            guard(oH + 2);
+
+                            // Row background
+                            doc.setFillColor(...(isSelected ? rgb('#007bff') : [255, 255, 255]));
+                            doc.roundedRect(ML, y, CW, oH, 1.5, 1.5, 'F');
+                            if (!isSelected) {
+                                doc.setDrawColor(220, 224, 230);
+                                doc.setLineWidth(0.2);
+                                doc.roundedRect(ML, y, CW, oH, 1.5, 1.5, 'S');
+                            }
+
+                            // Score badge (pill)
+                            doc.setFillColor(...(isSelected ? [255, 255, 255] : rgb('#28a745')));
+                            doc.roundedRect(ML + 2, y + oH/2 - 3.5, 10, 7, 1.5, 1.5, 'F');
+                            doc.setFont('helvetica', 'bold');
+                            doc.setFontSize(8);
+                            doc.setTextColor(...(isSelected ? rgb('#007bff') : [255, 255, 255]));
+                            doc.text(String(option.score), ML + 7, y + oH/2 + 1.2, { align: 'center' });
+
+                            // Option text — vertically centred
+                            doc.setFont('helvetica', 'normal');
+                            doc.setFontSize(9);
+                            doc.setTextColor(...(isSelected ? [255, 255, 255] : [50, 50, 50]));
+                            const tY = y + (oH - oLines.length * 4) / 2 + 3.5;
+                            doc.text(oLines, ML + 15, tY);
+
+                            y += oH + 2;
+                        });
+                    }
 
                     y += 4; // gap between criteria
                 });
