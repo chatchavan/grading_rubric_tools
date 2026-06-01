@@ -1230,6 +1230,16 @@
                     y += 4; // gap between criteria
                 });
 
+                // Add "page X of Y" to the bottom-right of every page
+                const totalPages = doc.getNumberOfPages();
+                for (let p = 1; p <= totalPages; p++) {
+                    doc.setPage(p);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(8);
+                    doc.setTextColor(150, 150, 150);
+                    doc.text(`page ${p} of ${totalPages}`, ML + CW, PH - 6, { align: 'right' });
+                }
+
                 const cleanName = studentName.replace(/[^a-zA-Z0-9_-]/g, '_');
                 zip.file(`${cleanName}.pdf`, doc.output('blob'));
             });
