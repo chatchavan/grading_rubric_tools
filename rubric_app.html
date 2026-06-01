@@ -278,6 +278,23 @@
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
         }
         
+        .use-default-rubric-button {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin-left: 10px;
+        }
+
+        .use-default-rubric-button:hover {
+            background: #c82333;
+        }
+
         .clear-storage-button {
             background: #dc3545;
             color: white;
@@ -492,7 +509,7 @@
             <div style="margin-bottom: 20px;">
                 <label for="rubricFile"><strong>Upload Rubric (Markdown):</strong></label>
                 <input type="file" id="rubricFile" accept=".md,.markdown,.txt" onchange="loadRubricFile()" style="margin-left: 10px;">
-                <button type="button" onclick="useDefaultRubric()" style="margin-left: 10px; padding: 5px 10px; background: #6c757d; color: white; border: none; border-radius: 3px;">Use Default Rubric</button>
+                <button type="button" onclick="useDefaultRubric()" class="use-default-rubric-button">Use Default Rubric</button>
                 <button type="button" class="clear-storage-button" onclick="clearLocalStorage()">Clear All Data</button>
             </div>
             <label for="studentName"><strong>Student Name:</strong></label>
