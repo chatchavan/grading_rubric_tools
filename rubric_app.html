@@ -972,13 +972,12 @@
         }
 
         function downloadJSON() {
-            const results = {
-                rubric: rubricData,
-                students: students.filter(student => student.name || Object.keys(student.scores).length > 0),
-                exportDate: new Date().toISOString()
-            };
-
-            downloadFile(JSON.stringify(results, null, 2), 'grading_results.json', 'application/json');
+            const allData = {};
+            Object.values(STORAGE_KEYS).forEach(key => {
+                allData[key] = loadFromLocalStorage(key);
+            });
+            
+            downloadFile(JSON.stringify(allData, null, 2), 'rubric_app_data.json', 'application/json');
         }
 
         function downloadMarkdownZip() {
