@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grading Rubric Application</title>
+    <title>Grading</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -503,8 +503,6 @@
 </head>
 <body>
     <div class="container">
-        <h1>Grading Rubric Application</h1>
-        
         <div class="student-info">
             <div style="margin-bottom: 20px;">
                 <label for="rubricFile"><strong>Upload Rubric (Markdown):</strong></label>
@@ -1318,7 +1316,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            // text area fallback
+            /* text area JSON export (for using on iPad) — currently unused
             let exportTextarea = document.querySelector("#export");
 
             if(!exportTextarea) {
@@ -1340,7 +1338,7 @@
             }
 
             exportTextarea.value = content;
-            
+            */
 
         }
 
