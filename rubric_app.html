@@ -799,8 +799,7 @@
                     const score = parseInt(selectedOption.value);
                     currentStudent.scores[criterionIndex] = {
                         criterionName: criterion.name,
-                        score: score,
-                        optionText: criterion.options.find(opt => opt.score === score).text
+                        score: score
                     };
                     totalScore += score;
                     selectedCount++;
