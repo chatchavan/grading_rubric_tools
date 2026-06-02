@@ -406,6 +406,47 @@
             font-size: 13px;
         }
 
+        /* Notes field */
+        .notes-section {
+            margin: 0 0 16px 0;
+        }
+
+        .notes-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .notes-textarea {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 14px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+            color: #495057;
+            background: white;
+            resize: vertical;
+            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            line-height: 1.5;
+        }
+
+        .notes-textarea:focus {
+            outline: none;
+            border-color: #80bdff;
+            box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+        }
+
+        .notes-textarea::placeholder {
+            color: #adb5bd;
+        }
+
         /* PDF header meta fields */
         .pdf-meta {
             display: flex;
@@ -530,6 +571,11 @@
             </div>
         </form>
         
+        <div class="notes-section">
+            <label for="studentNotes" class="notes-label">Notes</label>
+            <textarea id="studentNotes" class="notes-textarea" placeholder="Add notes for this student…" oninput="saveCurrentStudentData()"></textarea>
+        </div>
+
         <div class="score-display" id="scoreDisplay">
             Total Score: Select all criteria to see score
         </div>
@@ -848,6 +894,7 @@
         function saveCurrentStudentData() {
             const currentStudent = students[currentStudentIndex];
             currentStudent.name = document.getElementById('studentName').value;
+            currentStudent.notes = document.getElementById('studentNotes').value;
             
             // Save to local storage
             saveToLocalStorage(STORAGE_KEYS.students, students);
@@ -867,6 +914,7 @@
             }
             
             document.getElementById('studentName').value = currentStudent.name;
+            document.getElementById('studentNotes').value = currentStudent.notes || '';
             
             // Clear all radio buttons first
             document.querySelectorAll('input[type="radio"]').forEach(radio => {
@@ -965,7 +1013,7 @@
             rubricData.forEach(criterion => {
                 csv += ',' + '"' + criterion.name + '"';
             });
-            csv += ',Total Score\n';
+            csv += ',Total Score,Notes\n';
 
             students.forEach(student => {
                 if (student.name || Object.keys(student.scores).length > 0) {
@@ -982,7 +1030,8 @@
                         }
                     });
                     
-                    csv += ',' + totalScore + '\n';
+                    const notesValue = (student.notes || '').replace(/"/g, '""');
+                    csv += ',' + totalScore + ',"' + notesValue + '"\n';
                 }
             });
 
@@ -1024,6 +1073,10 @@
                     });
                     
                     markdown += `\n**Total Score: ${totalScore} / ${getMaxScore()}**\n ${rubricMarkdown}\n`;
+                    
+                    if (student.notes && student.notes.trim()) {
+                        markdown += `\n---\n\n**Notes:**\n\n${student.notes.trim()}\n`;
+                    }
                     // markdown += `*Generated on ${new Date().toLocaleString()}*\n`;
                     
                     // Clean filename by removing invalid characters
@@ -1246,6 +1299,38 @@
 
                     y += 4; // gap between criteria
                 });
+
+                // ── Notes section ─────────────────────────────────────────
+                const studentNotes = (student.notes || '').trim();
+                if (studentNotes) {
+                    doc.setFontSize(9);
+                    const noteLines = doc.splitTextToSize(studentNotes, CW - 8);
+                    const noteLabelH = 7;
+                    const noteBodyH  = noteLines.length * 4 + 6;
+                    const noteTotalH = noteLabelH + noteBodyH + 4;
+
+                    guard(noteTotalH);
+
+                    // Label bar
+                    doc.setFillColor(241, 243, 245);
+                    doc.roundedRect(ML, y, CW, noteLabelH, 1.5, 1.5, 'F');
+                    doc.setFont('helvetica', 'bold');
+                    doc.setFontSize(9);
+                    doc.setTextColor(108, 117, 125);
+                    doc.text('Notes', ML + 4, y + 5);
+                    y += noteLabelH + 1;
+
+                    // Body box
+                    doc.setFillColor(255, 255, 255);
+                    doc.setDrawColor(220, 224, 230);
+                    doc.setLineWidth(0.2);
+                    doc.roundedRect(ML, y, CW, noteBodyH, 1.5, 1.5, 'FD');
+                    doc.setFont('helvetica', 'normal');
+                    doc.setFontSize(9);
+                    doc.setTextColor(50, 50, 50);
+                    doc.text(noteLines, ML + 4, y + 5);
+                    y += noteBodyH + 4;
+                }
 
                 // Add "page X of Y" to the bottom-right of every page
                 const totalPages = doc.getNumberOfPages();
