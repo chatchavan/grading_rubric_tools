@@ -986,7 +986,7 @@
                 }
             });
 
-            downloadFile(csv, 'grading_results.csv', 'text/csv');
+            downloadFile(csv, `grading_results_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
         }
 
         function downloadJSON() {
@@ -995,7 +995,7 @@
                 allData[key] = loadFromLocalStorage(key);
             });
             
-            downloadFile(JSON.stringify(allData, null, 2), 'rubric_app_data.json', 'application/json');
+            downloadFile(JSON.stringify(allData, null, 2), `rubric_editor_data_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
         }
 
         function downloadMarkdownZip() {
