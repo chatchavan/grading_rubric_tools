@@ -82,16 +82,9 @@ function downloadMarkdownZip() {
         return;
     }
 
-    zip.generateAsync({ type: "blob" }).then(function(content) {
-        const url = URL.createObjectURL(content);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `grading_results_${new Date().toISOString().split('T')[0]}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
+    zip.generateAsync({ type: 'blob' }).then(blob =>
+        saveBlob(blob, `grading_results_${new Date().toISOString().split('T')[0]}.zip`)
+    );
 }
 
 function downloadPDFZip() {
@@ -165,6 +158,17 @@ function downloadPDFZip() {
         doc.text(scoreLabel, ML + CW / 2, y + 6.5, { align: 'center' });
         y += 17;
 
+        // Draw a criterion header bar and advance y past it
+        function drawCriterionHeader(hLines, hH) {
+            doc.setFontSize(10);
+            doc.setFillColor(...rgb('#495057'));
+            doc.roundedRect(ML, y, CW, hH, 2, 2, 'F');
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255);
+            hLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
+            y += hH + 1;
+        }
+
         // ── Rubric criteria ───────────────────────────────────────
         rubricData.forEach((criterion, ci) => {
             const savedScore = student.scores[ci];
@@ -196,14 +200,7 @@ function downloadPDFZip() {
                 // Guard once for header + columns together
                 guard(hH + 1 + colH + 2);
 
-                // Draw header
-                doc.setFontSize(10);
-                doc.setFillColor(...rgb('#495057'));
-                doc.roundedRect(ML, y, CW, hH, 2, 2, 'F');
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(255, 255, 255);
-                hLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
-                y += hH + 1;
+                drawCriterionHeader(hLines, hH);
 
                 // Draw columns
                 criterion.options.forEach((option, oi) => {
@@ -250,14 +247,7 @@ function downloadPDFZip() {
                 // Guard once for header + all option rows together
                 guard(hH + 1 + totalOptH);
 
-                // Draw header
-                doc.setFontSize(10);
-                doc.setFillColor(...rgb('#495057'));
-                doc.roundedRect(ML, y, CW, hH, 2, 2, 'F');
-                doc.setFont('helvetica', 'bold');
-                doc.setTextColor(255, 255, 255);
-                hLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
-                y += hH + 1;
+                drawCriterionHeader(hLines, hH);
 
                 // Draw option rows
                 optSizes.forEach(({ oLines, oH }, oi) => {
@@ -338,20 +328,12 @@ function downloadPDFZip() {
         zip.file(`${cleanName}.pdf`, doc.output('blob'));
     });
 
-    zip.generateAsync({ type: 'blob' }).then(blob => {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `grading_pdf_${new Date().toISOString().split('T')[0]}.zip`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    });
+    zip.generateAsync({ type: 'blob' }).then(blob =>
+        saveBlob(blob, `grading_pdf_${new Date().toISOString().split('T')[0]}.zip`)
+    );
 }
 
-function downloadFile(content, filename, contentType) {
-    const blob = new Blob([content], { type: contentType });
+function saveBlob(blob, filename) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -360,6 +342,10 @@ function downloadFile(content, filename, contentType) {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+}
+
+function downloadFile(content, filename, contentType) {
+    saveBlob(new Blob([content], { type: contentType }), filename);
 
     /* text area JSON export (for using on iPad) — currently unused
     let exportTextarea = document.querySelector("#export");

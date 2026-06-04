@@ -1,10 +1,26 @@
+/* ── Design tokens ───────────────────────────────────────────────────────────*/
+/* §3.2: per-project accent colour will override --clr-primary at runtime     */
+:root {
+    --clr-primary:      #007bff;
+    --clr-primary-dark: #0056b3;
+    --clr-success:      #28a745;
+    --clr-success-dark: #218838;
+    --clr-danger:       #dc3545;
+    --clr-danger-dark:  #c82333;
+    --clr-muted:        #6c757d;
+    --clr-dark:         #495057;
+    --clr-border:       #dee2e6;
+    --clr-surface:      #f8f9fa;
+    --clr-text:         #2c3e50;
+}
+
 /* ── Base layout ─────────────────────────────────────────────────────────────*/
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     max-width: 1000px;
     margin: 0 auto;
     padding: 15px;
-    background-color: #f8f9fa;
+    background-color: var(--clr-surface);
     line-height: 1.4;
 }
 
@@ -16,7 +32,7 @@ body {
 }
 
 h1 {
-    color: #2c3e50;
+    color: var(--clr-text);
     text-align: center;
     margin-bottom: 25px;
     font-size: 28px;
@@ -27,12 +43,12 @@ h1 {
 
 /* ── Student info area ───────────────────────────────────────────────────────*/
 .student-info {
-    background: #f8f9fa;
+    background: var(--clr-surface);
     color: #333;
     padding: 18px;
     border-radius: 10px;
     margin-bottom: 25px;
-    border: 2px solid #dee2e6;
+    border: 2px solid var(--clr-border);
     box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
@@ -56,6 +72,26 @@ h1 {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
+/* ── Rubric / data management buttons ────────────────────────────────────────*/
+.use-default-rubric-button,
+.clear-storage-button {
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.use-default-rubric-button          { background: var(--clr-muted); }
+.use-default-rubric-button:hover    { background: #5a6268; }
+
+.clear-storage-button               { background: var(--clr-danger); }
+.clear-storage-button:hover         { background: var(--clr-danger-dark); }
+
 /* ── Criteria ────────────────────────────────────────────────────────────────*/
 .criterion {
     margin-bottom: 18px;
@@ -72,7 +108,7 @@ h1 {
 }
 
 .criterion-header {
-    background: #495057;
+    background: var(--clr-dark);
     color: white;
     padding: 12px 18px;
     font-weight: 600;
@@ -81,17 +117,13 @@ h1 {
 }
 
 .criterion-header.missing {
-    background: #dc3545;
+    background: var(--clr-danger);
     animation: pulse-red 2s ease-in-out;
 }
 
 @keyframes pulse-red {
-    0%, 100% {
-        background: #dc3545;
-    }
-    50% {
-        background: #c82333;
-    }
+    0%, 100% { background: var(--clr-danger); }
+    50%       { background: var(--clr-danger-dark); }
 }
 
 .criterion-options {
@@ -124,16 +156,16 @@ h1 {
 }
 
 .option.selected {
-    background: #007bff;
+    background: var(--clr-primary);
     color: white;
-    border-color: #007bff;
+    border-color: var(--clr-primary);
     box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
 }
 
 .option input[type="radio"] {
     margin-right: 15px;
     transform: scale(1.4);
-    accent-color: #007bff;
+    accent-color: var(--clr-primary);
 }
 
 .option.selected input[type="radio"] {
@@ -155,7 +187,7 @@ h1 {
 }
 
 .score-badge {
-    background: #28a745;
+    background: var(--clr-success);
     color: white;
     padding: 4px 8px;
     border-radius: 12px;
@@ -168,12 +200,12 @@ h1 {
 
 .option.selected .score-badge {
     background: rgba(255,255,255,0.9);
-    color: #007bff;
+    color: var(--clr-primary);
 }
 
 /* ── Score display ───────────────────────────────────────────────────────────*/
 .score-display {
-    background: #28a745;
+    background: var(--clr-success);
     color: white;
     padding: 16px;
     text-align: center;
@@ -190,135 +222,7 @@ h1 {
     color: #212529;
 }
 
-/* ── Navigation ──────────────────────────────────────────────────────────────*/
-.navigation {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin: 25px 0;
-    padding: 18px;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border: 1px solid #dee2e6;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.nav-button {
-    background: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    font-weight: 500;
-    transition: all 0.2s;
-    min-height: 44px;
-    min-width: 120px;
-    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
-}
-
-.nav-button:hover {
-    background: #0056b3;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
-}
-
-.nav-button:active {
-    transform: translateY(0);
-}
-
-.nav-button:disabled {
-    background: #6c757d;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.student-counter {
-    font-size: 18px;
-    font-weight: 600;
-    color: #495057;
-    background: white;
-    padding: 8px 16px;
-    border-radius: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-/* ── Download section ────────────────────────────────────────────────────────*/
-.download-section {
-    border-top: 2px solid #e9ecef;
-    padding-top: 25px;
-    margin-top: 25px;
-}
-
-.download-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-    justify-content: center;
-}
-
-.download-button {
-    background: #28a745;
-    color: white;
-    border: none;
-    padding: 12px 18px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s;
-    min-height: 44px;
-    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-}
-
-.download-button:hover {
-    background: #218838;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
-}
-
-.download-button:active {
-    transform: translateY(0);
-}
-
-/* ── Rubric / data management buttons ────────────────────────────────────────*/
-.use-default-rubric-button {
-    background: #6c757d;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s;
-    margin-left: 10px;
-}
-
-.use-default-rubric-button:hover {
-    background: #c82333;
-}
-
-.clear-storage-button {
-    background: #dc3545;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 500;
-    transition: all 0.2s;
-    margin-left: 10px;
-}
-
-.clear-storage-button:hover {
-    background: #c82333;
-}
-
-/* ── Validation warning ───────────────────────────────────────────────────────*/
+/* ── Validation warnings ─────────────────────────────────────────────────────*/
 .validation-warning {
     background: #f8d7da;
     border: 1px solid #f5c6cb;
@@ -338,6 +242,96 @@ h1 {
     margin: 20px 0;
 }
 
+/* ── Navigation ──────────────────────────────────────────────────────────────*/
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0;
+    padding: 18px;
+    background: var(--clr-surface);
+    border-radius: 10px;
+    border: 1px solid var(--clr-border);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-button {
+    background: var(--clr-primary);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-height: 44px;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.nav-button:hover {
+    background: var(--clr-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.nav-button:active {
+    transform: translateY(0);
+}
+
+.nav-button:disabled {
+    background: var(--clr-muted);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.student-counter {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--clr-dark);
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── Notes field ─────────────────────────────────────────────────────────────*/
+.notes-section {
+    margin: 0 0 16px;
+}
+
+.notes-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--clr-dark);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.notes-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 14px;
+    border: 1px solid var(--clr-border);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--clr-dark);
+    background: white;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;
+}
+
+.notes-textarea::placeholder {
+    color: #adb5bd;
+}
+
 /* ── Layout toggle ───────────────────────────────────────────────────────────*/
 .layout-toggle-bar {
     display: flex;
@@ -347,7 +341,7 @@ h1 {
 
 .layout-toggle-btn {
     background: #f1f3f5;
-    color: #495057;
+    color: var(--clr-dark);
     border: 1px solid #ced4da;
     padding: 6px 14px;
     border-radius: 6px;
@@ -366,9 +360,9 @@ h1 {
 }
 
 .layout-toggle-btn.active {
-    background: #495057;
+    background: var(--clr-dark);
     color: white;
-    border-color: #495057;
+    border-color: var(--clr-dark);
 }
 
 /* Column layout overrides */
@@ -409,45 +403,42 @@ h1 {
     font-size: 13px;
 }
 
-/* ── Notes field ─────────────────────────────────────────────────────────────*/
-.notes-section {
-    margin: 0 0 16px 0;
+/* ── Download section ────────────────────────────────────────────────────────*/
+.download-section {
+    border-top: 2px solid #e9ecef;
+    padding-top: 25px;
+    margin-top: 25px;
 }
 
-.notes-label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #495057;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
+.download-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
-.notes-textarea {
-    width: 100%;
-    min-height: 80px;
-    padding: 10px 14px;
-    border: 1px solid #dee2e6;
+.download-button {
+    background: var(--clr-success);
+    color: white;
+    border: none;
+    padding: 12px 18px;
     border-radius: 8px;
+    cursor: pointer;
     font-size: 14px;
-    font-family: inherit;
-    color: #495057;
-    background: white;
-    resize: vertical;
-    box-sizing: border-box;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    line-height: 1.5;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-height: 44px;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
 }
 
-.notes-textarea:focus {
-    outline: none;
-    border-color: #80bdff;
-    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+.download-button:hover {
+    background: var(--clr-success-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
 }
 
-.notes-textarea::placeholder {
-    color: #adb5bd;
+.download-button:active {
+    transform: translateY(0);
 }
 
 /* ── PDF header meta fields ──────────────────────────────────────────────────*/
@@ -463,7 +454,7 @@ h1 {
 .pdf-meta-label {
     font-size: 11px;
     font-weight: 600;
-    color: #6c757d;
+    color: var(--clr-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
     white-space: nowrap;
@@ -471,23 +462,25 @@ h1 {
 
 .pdf-meta-input {
     padding: 7px 11px;
-    border: 1px solid #dee2e6;
+    border: 1px solid var(--clr-border);
     border-radius: 6px;
     font-size: 14px;
     width: 190px;
-    color: #495057;
+    color: var(--clr-dark);
     background: white;
     transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.pdf-meta-input::placeholder {
+    color: #adb5bd;
+}
+
+/* ── Focus ring (shared) ─────────────────────────────────────────────────────*/
+.notes-textarea:focus,
 .pdf-meta-input:focus {
     outline: none;
     border-color: #80bdff;
     box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
-}
-
-.pdf-meta-input::placeholder {
-    color: #adb5bd;
 }
 
 /* ── §5  Multi-window (placeholder for read-only banner) ─────────────────────*/

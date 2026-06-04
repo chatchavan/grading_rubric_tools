@@ -105,10 +105,7 @@ function loadRubricFile() {
                 saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
 
                 // Reset students data when new rubric is loaded
-                students = [{ name: '', scores: {} }];
-                currentStudentIndex = 0;
-                saveToLocalStorage(STORAGE_KEYS.students, students);
-                saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+                resetStudentState();
 
                 initializeRubric();
                 loadStudentData();
@@ -127,10 +124,7 @@ function useDefaultRubric() {
     saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
 
     // Reset students data when switching to default rubric
-    students = [{ name: '', scores: {} }];
-    currentStudentIndex = 0;
-    saveToLocalStorage(STORAGE_KEYS.students, students);
-    saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+    resetStudentState();
 
     initializeRubric();
     loadStudentData();

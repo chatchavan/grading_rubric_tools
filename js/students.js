@@ -3,6 +3,13 @@
 let students = [{ name: '', scores: {} }];
 let currentStudentIndex = 0;
 
+function resetStudentState() {
+    students = [{ name: '', scores: {} }];
+    currentStudentIndex = 0;
+    saveToLocalStorage(STORAGE_KEYS.students, students);
+    saveToLocalStorage(STORAGE_KEYS.currentIndex, currentStudentIndex);
+}
+
 function saveCurrentStudentData() {
     const currentStudent = students[currentStudentIndex];
     currentStudent.name = document.getElementById('studentName').value;

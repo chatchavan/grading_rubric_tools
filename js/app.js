@@ -33,8 +33,7 @@ function doClearLocalStorage() {
 
     // Reset application state
     rubricData = parseMarkdownRubric(defaultRubricMd);
-    students = [{ name: '', scores: {} }];
-    currentStudentIndex = 0;
+    resetStudentState();
 
     // Clear file input
     document.getElementById('rubricFile').value = '';
