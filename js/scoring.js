@@ -16,7 +16,7 @@ function updateScore() {
         if (selectedOption) {
             const score = parseInt(selectedOption.value);
             currentStudent.scores[criterionIndex] = {
-                criterionName: criterion.name,
+                criterionName: parseCriterionName(criterion.name).head,
                 score: score
             };
             totalScore += score;

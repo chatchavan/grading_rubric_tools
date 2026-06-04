@@ -1,7 +1,7 @@
 // ── §4 / §8  UI state: layout toggle, PDF meta, localStorage restore ─────────
 
 // Layout toggle state (declared here so initializeFromLocalStorage can set it)
-let isColumnLayout = false;
+let isColumnLayout = true;
 
 function toggleLayout() {
     isColumnLayout = !isColumnLayout;
@@ -30,40 +30,39 @@ function savePdfMeta() {
 }
 
 function initializeFromLocalStorage() {
-    // Load rubric data
+    // Always reset in-memory state first so a project with no saved data
+    // never inherits values from the previously active project.
+
+    // Rubric — fall back to built-in default when key is absent
     const savedRubric = loadFromLocalStorage(STORAGE_KEYS.rubricData);
-    if (savedRubric && savedRubric.length > 0) {
-        rubricData = savedRubric;
-    }
+    rubricData = (savedRubric && savedRubric.length > 0)
+        ? savedRubric
+        : parseMarkdownRubric(defaultRubricMd);
 
-    // Load students data
+    // Students — reset to one blank slot when key is absent
     const savedStudents = loadFromLocalStorage(STORAGE_KEYS.students);
-    if (savedStudents && savedStudents.length > 0) {
-        students = savedStudents;
-    }
+    students = (savedStudents && savedStudents.length > 0)
+        ? savedStudents
+        : [{ name: '', scores: {} }];
 
-    // Load current index
+    // Current index — reset to 0 when absent or out of range
     const savedIndex = loadFromLocalStorage(STORAGE_KEYS.currentIndex);
-    if (savedIndex !== null && savedIndex >= 0 && savedIndex < students.length) {
-        currentStudentIndex = savedIndex;
-    }
+    currentStudentIndex = (savedIndex !== null && savedIndex >= 0 && savedIndex < students.length)
+        ? savedIndex
+        : 0;
 
-    // Restore column layout state
+    // Column layout — default to column view when no preference saved
     const savedLayout = loadFromLocalStorage(STORAGE_KEYS.layout);
-    if (savedLayout === true) {
-        isColumnLayout = true;
-        document.getElementById('criteriaContainer').classList.add('column-layout');
-        const btn  = document.getElementById('layoutToggleBtn');
-        const icon = document.getElementById('layoutToggleIcon');
-        btn.classList.add('active');
-        icon.textContent = '⊞';
-        btn.childNodes[btn.childNodes.length - 1].textContent = ' Row View';
-    }
+    isColumnLayout = savedLayout === null ? true : savedLayout === true;
+    const container = document.getElementById('criteriaContainer');
+    const btn  = document.getElementById('layoutToggleBtn');
+    const icon = document.getElementById('layoutToggleIcon');
+    container.classList.toggle('column-layout', isColumnLayout);
+    btn.classList.toggle('active', isColumnLayout);
+    icon.textContent = isColumnLayout ? '⊞' : '⊟';
+    btn.childNodes[btn.childNodes.length - 1].textContent = isColumnLayout ? ' Row View' : ' Column View';
 
-    // Restore PDF header fields
-    const savedCourse = loadFromLocalStorage(STORAGE_KEYS.courseName);
-    if (savedCourse !== null) document.getElementById('courseName').value = savedCourse;
-
-    const savedAssignment = loadFromLocalStorage(STORAGE_KEYS.assignmentName);
-    if (savedAssignment !== null) document.getElementById('assignmentName').value = savedAssignment;
+    // PDF header fields — always write (empty string clears stale values)
+    document.getElementById('courseName').value     = loadFromLocalStorage(STORAGE_KEYS.courseName)     ?? '';
+    document.getElementById('assignmentName').value = loadFromLocalStorage(STORAGE_KEYS.assignmentName) ?? '';
 }

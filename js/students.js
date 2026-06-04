@@ -25,10 +25,11 @@ function loadStudentData() {
     // Clear any previous highlighting when loading new student
     clearCriterionHighlighting();
 
-    // Set default name if empty
+    // Set default name if empty, using the project's name template
     if (!currentStudent.name) {
+        const template     = (activeProject && activeProject.nameTemplate) || 'Author{n}';
         const studentNumber = String(currentStudentIndex + 1).padStart(2, '0');
-        currentStudent.name = `Author${studentNumber}`;
+        currentStudent.name = template.replace('{n}', studentNumber);
         saveToLocalStorage(STORAGE_KEYS.students, students);
     }
 
@@ -55,9 +56,15 @@ function loadStudentData() {
     updateVisualSelection();
     document.getElementById('studentCounter').textContent = `Student ${currentStudentIndex + 1}`;
     document.getElementById('backButton').disabled = currentStudentIndex === 0;
+
+    // §5.3 — acquire editing lock for this student
+    if (typeof acquireLock === 'function') acquireLock();
 }
 
 function navigateStudent(direction) {
+    // §5.3 — release lock before moving to a different student
+    if (typeof releaseLock === 'function') releaseLock();
+
     // Clear any previous highlighting
     clearCriterionHighlighting();
 

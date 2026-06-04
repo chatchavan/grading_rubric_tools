@@ -1,5 +1,15 @@
 // ── §1  Rubric data: default content, markdown parser, file loading, DOM rendering ─
 
+// Splits a criterion name into { head, description } when the author used the
+// "**Bold head**: description" format.  The markdown parser strips the first
+// colon, so the stored name arrives as "**Head** Description" (no colon).
+// Returns { head: fullName, description: '' } for plain names.
+function parseCriterionName(name) {
+    const m = name.match(/^\*\*(.+?)\*\*:?\s*(.*)$/);
+    if (m) return { head: m[1].trim(), description: m[2].trim() };
+    return { head: name, description: '' };
+}
+
 // the following default is not used, but kept to show the structure
 /*
 const defaultRubricData = [
@@ -15,8 +25,7 @@ const defaultRubricData = [
         name: "Premises - Relevant: Are the premises relevant to the claim?",
         options: [
             { score: 2, text: "Most/all" },
-            { score: 1, text: "About half" },
-            { score: 0, text: "Less than half" }
+            { score: 1, text: "About half" }
         ]
     }
 ];
@@ -24,14 +33,13 @@ const defaultRubricData = [
 
 // Default rubric data
 const defaultRubricMd =
-`- Central claim:
-\t- (2) Clearly stated at the beginning of the text gives a clear direction toward the central claim.
+`- **Central claim**: Is it clearly and prominently stated?
+\t- (2) Clearly stated at the beginning; gives a clear direction toward the argument.
 \t- (1) Clearly stated, but buried too far into the text.
-\t- (0) Implicit, ambiguous, or absent
-- Premises - Relevant: Are the premises relevant to the claim?
-\t- (2) Most/all
-\t- (1) About half
-\t- (0) Less than half`;  // important: the second level begins with a tab
+\t- (0) Implicit, ambiguous, or absent.
+- **Premises**: Are the premises relevant to the claim?
+\t- (2) Most or all premises are clearly relevant.
+\t- (1) About half of the premises are relevant.`;  // important: the second level begins with a tab
 
 
 function parseMarkdownRubric(markdownText) {
@@ -119,21 +127,6 @@ function loadRubricFile() {
     }
 }
 
-function useDefaultRubric() {
-    rubricData = parseMarkdownRubric(defaultRubricMd);
-    saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
-
-    // Reset students data when switching to default rubric
-    resetStudentState();
-
-    initializeRubric();
-    loadStudentData();
-
-    // Clear file input
-    document.getElementById('rubricFile').value = '';
-
-    alert('Default rubric restored.');
-}
 
 function initializeRubric() {
     const container = document.getElementById('criteriaContainer');
@@ -144,7 +137,11 @@ function initializeRubric() {
         criterionDiv.className = 'criterion';
 
         criterionDiv.innerHTML = `
-            <div class="criterion-header">${criterion.name}</div>
+            <div class="criterion-header">${(({ head, description }) =>
+                description
+                    ? `<span class="criterion-head">${head}</span><span class="criterion-desc">${description}</span>`
+                    : head
+            )(parseCriterionName(criterion.name))}</div>
             <div class="criterion-options">
                 ${criterion.options.map((option, optionIndex) => `
                     <div class="option" onclick="selectOption(${criterionIndex}, ${optionIndex})">

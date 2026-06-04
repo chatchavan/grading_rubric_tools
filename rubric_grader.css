@@ -17,11 +17,17 @@
 /* ── Base layout ─────────────────────────────────────────────────────────────*/
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    background-color: var(--clr-surface); /* overridden inline by applyProjectBackground() */
+    line-height: 1.4;
+    transition: background-color 0.4s ease;
+}
+
+/* §4 — max-width lives on the wrapper so the fixed sidebar doesn't fight it */
+.main-wrapper {
     max-width: 1000px;
     margin: 0 auto;
     padding: 15px;
-    background-color: var(--clr-surface);
-    line-height: 1.4;
 }
 
 .container {
@@ -39,7 +45,265 @@ h1 {
     font-weight: 600;
 }
 
-/* ── §4  Sidebar (placeholder for multi-project) ─────────────────────────────*/
+/* ── §4.1  Sidebar toggle — fixed top-left of viewport ──────────────────────*/
+#sidebarToggle {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 500;
+    background: white;
+    border: 1px solid #d0d5dd;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    cursor: pointer;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+#sidebarToggle:hover { background: #f5f5f5; }
+
+/* ── Sidebar overlay ─────────────────────────────────────────────────────────*/
+#sidebarOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.22);
+    z-index: 600;
+}
+
+#sidebarOverlay.open { display: block; }
+
+/* ── §4  Sidebar panel ───────────────────────────────────────────────────────*/
+#sidebar {
+    position: fixed;
+    top: 0;
+    left: -290px;
+    width: 278px;
+    height: 100vh;
+    background: white;
+    border-right: 1px solid #e9ecef;
+    box-shadow: 3px 0 18px rgba(0,0,0,0.13);
+    z-index: 700;
+    display: flex;
+    flex-direction: column;
+    transition: left 0.22s ease;
+    overflow: hidden;
+}
+
+#sidebar.open { left: 0; }
+
+.sb-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sb-heading {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--clr-text);
+}
+
+.sb-close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: var(--clr-muted);
+    padding: 0;
+    line-height: 1;
+}
+
+.sb-close:hover { color: #333; }
+
+/* ── §4.2  Project rows ──────────────────────────────────────────────────────*/
+#projectList {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.proj-row {
+    border-left: 3px solid transparent;
+    padding: 8px 10px 6px;
+    transition: background 0.12s;
+}
+
+.proj-row:hover { background: var(--clr-surface); }
+
+.proj-row.active {
+    background: #edf2ff;
+    border-left-color: var(--proj-color, var(--clr-primary));
+}
+
+.proj-top {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.color-swatch {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    border: 1px solid rgba(0,0,0,0.12);
+    cursor: pointer;
+    position: relative;
+}
+
+.color-swatch input[type=color] {
+    opacity: 0;
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+}
+
+.proj-name {
+    flex: 1;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--clr-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.proj-name:hover { color: var(--clr-primary); }
+
+.proj-name-input {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid #80bdff;
+    border-radius: 4px;
+    padding: 2px 6px;
+    outline: none;
+    font-family: inherit;
+    box-shadow: 0 0 0 2px rgba(0,123,255,0.12);
+}
+
+.proj-badge {
+    background: #adb5bd;
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.proj-row.active .proj-badge { background: var(--proj-color, var(--clr-primary)); }
+
+.proj-menu-wrap {
+    position: relative;
+}
+
+.proj-menu-btn {
+    background: none;
+    border: none;
+    font-size: 16px;
+    color: var(--clr-muted);
+    cursor: pointer;
+    padding: 0 4px;
+    line-height: 1;
+    font-family: inherit;
+}
+
+.proj-menu-btn:hover { color: #333; }
+
+.proj-slug-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-left: 19px;
+    margin-top: 3px;
+}
+
+.proj-slug {
+    font-size: 10.5px;
+    color: #b0b8cc;
+    font-family: Consolas, monospace;
+    user-select: all;
+}
+
+.proj-slug-link {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* ── Sidebar footer ──────────────────────────────────────────────────────────*/
+.sb-footer {
+    border-top: 1px solid #e9ecef;
+    padding: 9px 11px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.sb-foot-btn {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 6px;
+    border: 1px solid var(--clr-border);
+    background: white;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+}
+
+.sb-foot-btn:hover { background: #f0f0f0; }
+
+/* ── Dropdowns ───────────────────────────────────────────────────────────────*/
+.dropdown {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    right: 0;
+    background: white;
+    border: 1px solid var(--clr-border);
+    border-radius: 8px;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.12);
+    min-width: 185px;
+    z-index: 800;
+    display: none;
+}
+
+.proj-dropdown {
+    bottom: auto;
+    top: calc(100% + 4px);
+    right: 0;
+}
+
+.dropdown.open { display: block; }
+
+.dd-item {
+    padding: 9px 14px;
+    font-size: 13px;
+    color: #333;
+    cursor: pointer;
+    white-space: nowrap;
+    text-align: left;
+}
+
+.dd-item:first-child { border-radius: 8px 8px 0 0; }
+.dd-item:last-child  { border-radius: 0 0 8px 8px; }
+.dd-item:hover       { background: var(--clr-surface); }
+.dd-item.dd-danger:hover { background: #fff5f5; color: var(--clr-danger); }
 
 /* ── Student info area ───────────────────────────────────────────────────────*/
 .student-info {
@@ -73,7 +337,6 @@ h1 {
 }
 
 /* ── Rubric / data management buttons ────────────────────────────────────────*/
-.use-default-rubric-button,
 .clear-storage-button {
     color: white;
     border: none;
@@ -84,13 +347,10 @@ h1 {
     font-weight: 500;
     transition: all 0.2s;
     margin-left: 10px;
+    background: var(--clr-danger);
 }
 
-.use-default-rubric-button          { background: var(--clr-muted); }
-.use-default-rubric-button:hover    { background: #5a6268; }
-
-.clear-storage-button               { background: var(--clr-danger); }
-.clear-storage-button:hover         { background: var(--clr-danger-dark); }
+.clear-storage-button:hover { background: var(--clr-danger-dark); }
 
 /* ── Criteria ────────────────────────────────────────────────────────────────*/
 .criterion {
@@ -114,6 +374,15 @@ h1 {
     font-weight: 600;
     font-size: 15px;
     transition: background-color 0.3s ease;
+}
+
+/* "**Head**: description" format — head inherits bold, description is lighter */
+.criterion-head { font-weight: 600; }
+
+.criterion-desc {
+    font-weight: 400;
+    opacity: 0.82;
+    margin-left: 6px;
 }
 
 .criterion-header.missing {
@@ -483,11 +752,252 @@ h1 {
     box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
 }
 
-/* ── §5  Multi-window (placeholder for read-only banner) ─────────────────────*/
+/* ── §5.3  Read-only banner ──────────────────────────────────────────────────*/
+#readonlyBanner {
+    display: none;
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    color: #856404;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
 
-/* ── §7  Modals (placeholder for export/import modals) ───────────────────────*/
+#readonlyBanner.visible { display: flex; }
 
-/* ── Toasts (placeholder) ────────────────────────────────────────────────────*/
+.ro-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.takeover-btn {
+    background: #ffc107;
+    color: #5d4a00;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: inherit;
+    flex-shrink: 0;
+}
+
+.takeover-btn:hover { background: #e0a800; }
+
+/* ── §7  Modals ──────────────────────────────────────────────────────────────*/
+.modal-bg {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 900;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-bg.open { display: flex; }
+
+.modal {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+    width: 480px;
+    max-width: 95vw;
+    max-height: 88vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-head {
+    padding: 18px 22px 14px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--clr-text);
+}
+
+.modal-x {
+    background: none;
+    border: none;
+    font-size: 21px;
+    cursor: pointer;
+    color: var(--clr-muted);
+    line-height: 1;
+    font-family: inherit;
+}
+
+.modal-x:hover { color: #333; }
+
+.modal-body {
+    padding: 14px 22px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.modal-foot {
+    padding: 13px 22px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Edit-project form fields */
+.modal-field {
+    margin-bottom: 16px;
+}
+
+.modal-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--clr-dark);
+    margin-bottom: 5px;
+}
+
+.modal-hint {
+    font-weight: 400;
+    color: var(--clr-muted);
+    font-size: 11px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 8px 11px;
+    border: 1px solid var(--clr-border);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    color: var(--clr-dark);
+    box-sizing: border-box;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+/* Select all / Deselect all toggle */
+.sel-all-btn {
+    background: none;
+    border: none;
+    color: var(--clr-primary);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 0;
+    font-family: inherit;
+}
+
+.sel-all-btn:hover { text-decoration: underline; }
+
+/* Action buttons */
+.modal-act-btn {
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: white;
+    font-family: inherit;
+}
+
+.modal-act-primary             { background: var(--clr-primary); }
+.modal-act-primary:hover       { background: var(--clr-primary-dark); }
+
+/* Project checklist rows (export/import) */
+.check-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.check-row:last-child { border-bottom: none; }
+
+.chk-swatch {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.chk-info   { flex: 1; }
+.chk-name   { font-size: 14px; font-weight: 500; color: var(--clr-text); }
+.chk-meta   { font-size: 11px; color: var(--clr-muted); margin-top: 1px; }
+
+.import-conflict-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.import-radio-label {
+    font-size: 12px;
+    color: #495057;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.conflict-tag {
+    font-size: 11px;
+    color: #856404;
+    background: #fff3cd;
+    padding: 2px 8px;
+    border-radius: 4px;
+    border: 1px solid #ffc107;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* ── Toasts ──────────────────────────────────────────────────────────────────*/
+#toastArea {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    pointer-events: none;
+}
+
+.toast {
+    background: var(--clr-text);
+    color: white;
+    padding: 11px 17px;
+    border-radius: 8px;
+    font-size: 13px;
+    max-width: 310px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    pointer-events: all;
+    cursor: pointer;
+    animation: toastIn 0.22s ease;
+}
+
+.toast.warn { background: #7a5c00; }
+
+@keyframes toastIn {
+    from { transform: translateY(8px); opacity: 0; }
+    to   { transform: translateY(0);   opacity: 1; }
+}
 
 /* ── Mobile responsiveness ───────────────────────────────────────────────────*/
 @media (max-width: 768px) {

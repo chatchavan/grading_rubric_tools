@@ -7,18 +7,60 @@
     <link rel="stylesheet" href="rubric_grader.css">
 </head>
 <body>
+
+<!-- ── §4.1  Sidebar toggle — fixed top-left of viewport ─────────────────── -->
+<button id="sidebarToggle" onclick="toggleSidebar()" title="Toggle project sidebar">☰</button>
+
+<!-- ── Sidebar overlay ────────────────────────────────────────────────────── -->
+<div id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- ── §4  Sidebar panel ──────────────────────────────────────────────────── -->
+<div id="sidebar">
+    <div class="sb-header">
+        <span class="sb-heading">Projects</span>
+        <button class="sb-close" onclick="closeSidebar()" title="Close">×</button>
+    </div>
+    <div id="projectList"></div>
+    <div class="sb-footer">
+        <!-- §4.2 footer: + button -->
+        <button class="sb-foot-btn" onclick="toggleDropdown('addDd', event)" title="New project">
+            +
+            <div class="dropdown" id="addDd">
+                <div class="dd-item" onclick="onNewProject()">📄 New project</div>
+                <div class="dd-item" onclick="closeSidebar(); openModal('importModal')">📥 Import projects…</div>
+            </div>
+        </button>
+        <!-- §4.2 footer: ⚙ button -->
+        <button class="sb-foot-btn" onclick="toggleDropdown('settingsDd', event)" title="Settings">
+            ⚙
+            <div class="dropdown" id="settingsDd">
+                <div class="dd-item" onclick="closeSidebar(); openModal('exportModal')">📤 Export projects…</div>
+            </div>
+        </button>
+    </div>
+</div>
+
+<!-- ── Main content ───────────────────────────────────────────────────────── -->
+<div class="main-wrapper">
     <div class="container">
+
+        <!-- §6 — title updated dynamically to "<project name> — Grading" -->
+        <h1 id="mainTitle">Grading</h1>
+
+        <!-- §5.3 — shown when another window holds the editing lock -->
+        <div id="readonlyBanner">
+            <span class="ro-text">⚠ This student is currently being edited in another window.</span>
+            <button class="takeover-btn" onclick="takeOverEditing()">Take over editing</button>
+        </div>
+
         <div class="student-info">
             <div style="margin-bottom: 20px;">
                 <label for="rubricFile"><strong>Upload Rubric (Markdown):</strong></label>
                 <input type="file" id="rubricFile" accept=".md,.markdown,.txt" onchange="loadRubricFile()" style="margin-left: 10px;">
-                <button type="button" onclick="useDefaultRubric()" class="use-default-rubric-button">Use Default Rubric</button>
-                <button type="button" class="clear-storage-button" onclick="clearLocalStorage()">Clear All Data</button>
+                <!-- §8 — renamed from "Clear All Data" -->
+                <button type="button" class="clear-storage-button" onclick="clearGradingData()">Clear Grading Data</button>
             </div>
-            <div style="margin-bottom: 20px;">
-                <label for="jsonFileInput"><strong>Upload JSON:</strong></label>
-                <input type="file" id="jsonFileInput" accept=".json" onchange="uploadJSON()">
-            </div>
+            <!-- §8 — "Upload JSON" removed; replaced by Import in sidebar ⚙ menu -->
             <label for="studentName"><strong>Student Name:</strong></label>
             <input type="text" id="studentName" class="student-name-input" placeholder="Enter student name">
         </div>
@@ -37,7 +79,8 @@
 
         <div class="notes-section">
             <label for="studentNotes" class="notes-label">Notes</label>
-            <textarea id="studentNotes" class="notes-textarea" placeholder="Add notes for this student…" oninput="saveCurrentStudentData()"></textarea>
+            <!-- oninput removed — handled by debounced listener in app.js -->
+            <textarea id="studentNotes" class="notes-textarea" placeholder="Add notes for this student…"></textarea>
         </div>
 
         <div class="score-display" id="scoreDisplay">
@@ -53,27 +96,106 @@
         <div class="download-section">
             <h3 style="text-align: center; margin-bottom: 16px;">Download Results</h3>
             <div class="pdf-meta">
-                <span class="pdf-meta-label">PDF header:</span>
+                <span class="pdf-meta-label">For Markdown and PDF:</span>
                 <input type="text" id="courseName" class="pdf-meta-input" placeholder="Course name" oninput="savePdfMeta()">
                 <input type="text" id="assignmentName" class="pdf-meta-input" placeholder="Assignment name" oninput="savePdfMeta()">
             </div>
             <div class="download-buttons">
                 <button type="button" class="download-button" onclick="downloadCSV()">Download CSV</button>
-                <button type="button" class="download-button" onclick="downloadJSON()">Download JSON</button>
+                <!-- §8 — "Download JSON" removed; replaced by Export in sidebar -->
                 <button type="button" class="download-button" onclick="downloadMarkdownZip()">Download Markdown (ZIP)</button>
                 <button type="button" class="download-button" onclick="downloadPDFZip()">Download PDF (ZIP)</button>
             </div>
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/storage.js"></script>
-    <script src="js/rubric.js"></script>
-    <script src="js/students.js"></script>
-    <script src="js/scoring.js"></script>
-    <script src="js/download.js"></script>
-    <script src="js/ui.js"></script>
-    <script src="js/app.js"></script>
+    </div><!-- /.container -->
+</div><!-- /.main-wrapper -->
+
+<!-- ── §2.2  Edit project modal ───────────────────────────────────────────── -->
+<div class="modal-bg" id="editProjectModal">
+    <div class="modal">
+        <div class="modal-head">
+            <span class="modal-title">Edit project</span>
+            <button class="modal-x" onclick="closeModal('editProjectModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-field">
+                <label class="modal-label">Display name</label>
+                <input type="text" id="editProjectName" class="modal-input">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">URL slug <span class="modal-hint">(a–z, 0–9, hyphens)</span></label>
+                <input type="text" id="editProjectSlug" class="modal-input" pattern="[a-z0-9-]+">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Colour</label>
+                <input type="color" id="editProjectColor">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Student name template
+                    <span class="modal-hint"> — use {n} for the number, e.g. Author{n} → Author01</span>
+                </label>
+                <input type="text" id="editProjectNameTemplate" class="modal-input" placeholder="Author{n}">
+            </div>
+        </div>
+        <div class="modal-foot" style="justify-content: flex-end;">
+            <button class="modal-act-btn modal-act-primary" onclick="saveProjectEdit()">Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── §7.1  Export modal ─────────────────────────────────────────────────── -->
+<div class="modal-bg" id="exportModal">
+    <div class="modal">
+        <div class="modal-head">
+            <span class="modal-title">Export projects</span>
+            <button class="modal-x" onclick="closeModal('exportModal')">×</button>
+        </div>
+        <div class="modal-body" id="exportList"></div>
+        <div class="modal-foot">
+            <button class="sel-all-btn" onclick="modalSelAll('exportList')">Select all / Deselect all</button>
+            <button class="modal-act-btn modal-act-primary" onclick="doExport()">Export selected</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── §7.2  Import modal ─────────────────────────────────────────────────── -->
+<div class="modal-bg" id="importModal">
+    <div class="modal">
+        <div class="modal-head">
+            <span class="modal-title">Import projects</span>
+            <button class="modal-x" onclick="closeModal('importModal')">×</button>
+        </div>
+        <div class="modal-body">
+            <div style="margin-bottom: 16px;">
+                <label style="font-size: 13px; font-weight: 500; color: #495057;">Select an export JSON file:</label>
+                <input type="file" id="importFileInput" accept=".json"
+                       style="display: block; margin-top: 8px;" onchange="onImportFileChange()">
+            </div>
+            <div id="importList"></div>
+        </div>
+        <div class="modal-foot">
+            <button class="sel-all-btn" onclick="modalSelAll('importList')">Select all / Deselect all</button>
+            <button class="modal-act-btn modal-act-primary" onclick="doImport()">Import selected</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Toast area ─────────────────────────────────────────────────────────── -->
+<div id="toastArea"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/storage.js"></script>
+<script src="js/projects.js"></script>
+<script src="js/rubric.js"></script>
+<script src="js/students.js"></script>
+<script src="js/scoring.js"></script>
+<script src="js/download.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/sidebar.js"></script>
+<script src="js/sync.js"></script>
+<script src="js/modals.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-// ── §7  Download / export: CSV, JSON, Markdown ZIP, PDF ZIP ──────────────────
+// ── §7  Download: CSV, Markdown ZIP, PDF ZIP (JSON export → modals.js) ────────
 
 function downloadCSV() {
     let csv = 'Student Name';
@@ -30,25 +30,24 @@ function downloadCSV() {
     downloadFile(csv, `grading_results_${new Date().toISOString().split('T')[0]}.csv`, 'text/csv');
 }
 
-function downloadJSON() {
-    const allData = {};
-    Object.values(STORAGE_KEYS).forEach(key => {
-        allData[key] = loadFromLocalStorage(key);
-    });
-
-    downloadFile(JSON.stringify(allData, null, 2), `rubric_editor_data_${new Date().toISOString().split('T')[0]}.json`, 'application/json');
-}
 
 function downloadMarkdownZip() {
     const zip = new JSZip();
     let hasValidStudents = false;
 
+    const courseName     = document.getElementById('courseName').value.trim();
+    const assignmentName = document.getElementById('assignmentName').value.trim();
+
     students.forEach((student, studentIndex) => {
         if (student.name || Object.keys(student.scores).length > 0) {
             hasValidStudents = true;
             const studentName = student.name || `Author${String(studentIndex + 1).padStart(2, '0')}`;
-            let markdown = `# Grading Results - ${studentName}\n\n`;
 
+            // ── Header ──────────────────────────────────────────────────────
+            let markdown = assignmentName ? `# ${assignmentName}\n\n` : `# Grading Results\n\n`;
+            markdown += `${studentName}\n\n`;
+
+            // ── Score ────────────────────────────────────────────────────────
             let totalScore = 0;
             let rubricMarkdown = "";
             rubricData.forEach((criterion, criterionIndex) => {
@@ -64,12 +63,15 @@ function downloadMarkdownZip() {
                 }
             });
 
-            markdown += `\n**Total Score: ${totalScore} / ${getMaxScore()}**\n ${rubricMarkdown}\n`;
+            markdown += `**Total Score: ${totalScore} / ${getMaxScore()}**\n${rubricMarkdown}\n`;
 
+            // ── Notes ────────────────────────────────────────────────────────
             if (student.notes && student.notes.trim()) {
                 markdown += `\n---\n\n**Notes:**\n\n${student.notes.trim()}\n`;
             }
-            // markdown += `*Generated on ${new Date().toLocaleString()}*\n`;
+
+            // ── Footer ───────────────────────────────────────────────────────
+            markdown += `\n---\n\n${courseName || ''}\n`;
 
             // Clean filename by removing invalid characters
             const cleanFileName = studentName.replace(/[^a-zA-Z0-9_-]/g, '_');
@@ -158,14 +160,20 @@ function downloadPDFZip() {
         doc.text(scoreLabel, ML + CW / 2, y + 6.5, { align: 'center' });
         y += 17;
 
-        // Draw a criterion header bar and advance y past it
-        function drawCriterionHeader(hLines, hH) {
+        // Draw a criterion header bar (bold head + optional lighter description) and advance y
+        function drawCriterionHeader(headLines, descLines, hH) {
             doc.setFontSize(10);
             doc.setFillColor(...rgb('#495057'));
             doc.roundedRect(ML, y, CW, hH, 2, 2, 'F');
-            doc.setFont('helvetica', 'bold');
             doc.setTextColor(255, 255, 255);
-            hLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
+            doc.setFont('helvetica', 'bold');
+            headLines.forEach((line, li) => doc.text(line, ML + 4, y + 6.5 + li * 4.5));
+            if (descLines.length) {
+                doc.setFont('helvetica', 'normal');
+                descLines.forEach((line, li) =>
+                    doc.text(line, ML + 4, y + 6.5 + (headLines.length + li) * 4.5)
+                );
+            }
             y += hH + 1;
         }
 
@@ -173,10 +181,15 @@ function downloadPDFZip() {
         rubricData.forEach((criterion, ci) => {
             const savedScore = student.scores[ci];
 
-            // Measure header
+            // Measure header — split bold head and lighter description
             doc.setFontSize(10);
-            const hLines = doc.splitTextToSize(criterion.name, CW - 8);
-            const hH     = hLines.length * 5 + 5;      // ~10 mm for one line
+            const { head, description } = parseCriterionName(criterion.name);
+            doc.setFont('helvetica', 'bold');
+            const headLines = doc.splitTextToSize(head, CW - 8);
+            const descLines = description
+                ? (doc.setFont('helvetica', 'normal'), doc.splitTextToSize(description, CW - 8))
+                : [];
+            const hH = (headLines.length + descLines.length) * 5 + 5;
 
             if (isColumnLayout) {
                 // ── Column mode: all options side-by-side ──────────────
@@ -200,7 +213,7 @@ function downloadPDFZip() {
                 // Guard once for header + columns together
                 guard(hH + 1 + colH + 2);
 
-                drawCriterionHeader(hLines, hH);
+                drawCriterionHeader(headLines, descLines, hH);
 
                 // Draw columns
                 criterion.options.forEach((option, oi) => {
@@ -247,7 +260,7 @@ function downloadPDFZip() {
                 // Guard once for header + all option rows together
                 guard(hH + 1 + totalOptH);
 
-                drawCriterionHeader(hLines, hH);
+                drawCriterionHeader(headLines, descLines, hH);
 
                 // Draw option rows
                 optSizes.forEach(({ oLines, oH }, oi) => {
