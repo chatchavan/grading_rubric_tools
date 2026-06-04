@@ -1,4 +1,26 @@
-// ── §7  Download: CSV, Markdown ZIP, PDF ZIP (JSON export → modals.js) ────────
+// ── §7  Download: CSV, Markdown ZIP, PDF ZIP, Rubric MD (JSON export → modals.js) ─
+
+// ── Rubric download ────────────────────────────────────────────────────────────
+
+// Reconstructs rubric markdown from the parsed rubricData array.
+// Used as a fallback when no raw markdown was saved (e.g. default rubric).
+function reconstructRubricMarkdown() {
+    return rubricData.map(criterion => {
+        const { head, description } = parseCriterionName(criterion.name);
+        const nameLine = description ? `**${head}**: ${description}` : head;
+        const options  = criterion.options
+            .map(opt => `\t- (${opt.score}) ${opt.text}`)
+            .join('\n');
+        return `- ${nameLine}\n${options}`;
+    }).join('\n');
+}
+
+function downloadRubricMd() {
+    const raw      = loadFromLocalStorage(STORAGE_KEYS.rubricMarkdown);
+    const content  = raw || reconstructRubricMarkdown();
+    const slug     = activeProject ? activeProject.slug : 'rubric';
+    downloadFile(content, `${slug}_rubric.md`, 'text/markdown');
+}
 
 function downloadCSV() {
     let csv = 'Student Name';

@@ -120,7 +120,7 @@ function clearProjectGradingData(id) {
 // ── §2.4  Delete project — removes all associated keys ────────────────────
 
 function deleteProject(id) {
-    ['students','currentIndex','rubricData','layout','courseName','assignmentName']
+    ['students','currentIndex','rubricData','rubricMarkdown','layout','courseName','assignmentName']
         .forEach(f => localStorage.removeItem(`${id}_${f}`));
     projectRegistry = projectRegistry.filter(p => p.id !== id);
     saveRegistry();

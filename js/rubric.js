@@ -110,7 +110,8 @@ function loadRubricFile() {
                 }
 
                 rubricData = parsedRubric;
-                saveToLocalStorage(STORAGE_KEYS.rubricData, rubricData);
+                saveToLocalStorage(STORAGE_KEYS.rubricData,     rubricData);
+                saveToLocalStorage(STORAGE_KEYS.rubricMarkdown, markdownText);
 
                 // Reset students data when new rubric is loaded
                 resetStudentState();

@@ -9,22 +9,24 @@ const GLOBAL_KEYS = {
 
 // Per-project keys — rebuilt by updateStorageKeys() on every project switch
 let STORAGE_KEYS = {
-    students:       '',
-    currentIndex:   '',
-    rubricData:     '',
-    layout:         '',
-    courseName:     '',
-    assignmentName: '',
+    students:        '',
+    currentIndex:    '',
+    rubricData:      '',
+    rubricMarkdown:  '',
+    layout:          '',
+    courseName:      '',
+    assignmentName:  '',
 };
 
 function updateStorageKeys(projectId) {
     STORAGE_KEYS = {
-        students:       `${projectId}_students`,
-        currentIndex:   `${projectId}_currentIndex`,
-        rubricData:     `${projectId}_rubricData`,
-        layout:         `${projectId}_layout`,
-        courseName:     `${projectId}_courseName`,
-        assignmentName: `${projectId}_assignmentName`,
+        students:        `${projectId}_students`,
+        currentIndex:    `${projectId}_currentIndex`,
+        rubricData:      `${projectId}_rubricData`,
+        rubricMarkdown:  `${projectId}_rubricMarkdown`,
+        layout:          `${projectId}_layout`,
+        courseName:      `${projectId}_courseName`,
+        assignmentName:  `${projectId}_assignmentName`,
     };
 }
 

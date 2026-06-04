@@ -60,7 +60,7 @@ function doExport() {
         const id   = r.dataset.projId;
         const meta = findById(id);
         const data = {};
-        ['students','currentIndex','rubricData','layout','courseName','assignmentName']
+        ['students','currentIndex','rubricData','rubricMarkdown','layout','courseName','assignmentName']
             .forEach(f => { data[`${id}_${f}`] = loadFromLocalStorage(`${id}_${f}`); });
         return { meta, data };
     });
