@@ -1,0 +1,551 @@
+/* ── Base layout ─────────────────────────────────────────────────────────────*/
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f8f9fa;
+    line-height: 1.4;
+}
+
+.container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+}
+
+h1 {
+    color: #2c3e50;
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+/* ── §4  Sidebar (placeholder for multi-project) ─────────────────────────────*/
+
+/* ── Student info area ───────────────────────────────────────────────────────*/
+.student-info {
+    background: #f8f9fa;
+    color: #333;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 2px solid #dee2e6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.student-info label {
+    color: #333;
+    font-weight: 500;
+}
+
+.student-name-input {
+    width: 280px;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    transition: box-shadow 0.2s;
+}
+
+.student-name-input:focus {
+    outline: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* ── Criteria ────────────────────────────────────────────────────────────────*/
+.criterion {
+    margin-bottom: 18px;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.criterion:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.criterion-header {
+    background: #495057;
+    color: white;
+    padding: 12px 18px;
+    font-weight: 600;
+    font-size: 15px;
+    transition: background-color 0.3s ease;
+}
+
+.criterion-header.missing {
+    background: #dc3545;
+    animation: pulse-red 2s ease-in-out;
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        background: #dc3545;
+    }
+    50% {
+        background: #c82333;
+    }
+}
+
+.criterion-options {
+    padding: 12px;
+    background: #fafbfc;
+}
+
+.option {
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    background: white;
+    cursor: pointer;
+    min-height: 44px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.option:hover {
+    background-color: #f8f9ff;
+    border-color: #e3f2fd;
+    transform: translateX(3px);
+}
+
+.option:active {
+    transform: translateX(1px) scale(0.98);
+}
+
+.option.selected {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.option input[type="radio"] {
+    margin-right: 15px;
+    transform: scale(1.4);
+    accent-color: #007bff;
+}
+
+.option.selected input[type="radio"] {
+    accent-color: white;
+}
+
+.option label {
+    cursor: pointer;
+    flex: 1;
+    line-height: 1.4;
+    font-size: 14px;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.option.selected label {
+    color: white;
+    font-weight: 500;
+}
+
+.score-badge {
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+    min-width: 32px;
+    text-align: center;
+}
+
+.option.selected .score-badge {
+    background: rgba(255,255,255,0.9);
+    color: #007bff;
+}
+
+/* ── Score display ───────────────────────────────────────────────────────────*/
+.score-display {
+    background: #28a745;
+    color: white;
+    padding: 16px;
+    text-align: center;
+    font-size: 20px;
+    font-weight: 600;
+    margin: 20px 0;
+    border-radius: 10px;
+    min-height: 24px;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.score-display.incomplete {
+    background: #ffc107;
+    color: #212529;
+}
+
+/* ── Navigation ──────────────────────────────────────────────────────────────*/
+.navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 25px 0;
+    padding: 18px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.nav-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-height: 44px;
+    min-width: 120px;
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+}
+
+.nav-button:hover {
+    background: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+}
+
+.nav-button:active {
+    transform: translateY(0);
+}
+
+.nav-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.student-counter {
+    font-size: 18px;
+    font-weight: 600;
+    color: #495057;
+    background: white;
+    padding: 8px 16px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── Download section ────────────────────────────────────────────────────────*/
+.download-section {
+    border-top: 2px solid #e9ecef;
+    padding-top: 25px;
+    margin-top: 25px;
+}
+
+.download-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.download-button {
+    background: #28a745;
+    color: white;
+    border: none;
+    padding: 12px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+    min-height: 44px;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+}
+
+.download-button:hover {
+    background: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+}
+
+.download-button:active {
+    transform: translateY(0);
+}
+
+/* ── Rubric / data management buttons ────────────────────────────────────────*/
+.use-default-rubric-button {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.use-default-rubric-button:hover {
+    background: #c82333;
+}
+
+.clear-storage-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.2s;
+    margin-left: 10px;
+}
+
+.clear-storage-button:hover {
+    background: #c82333;
+}
+
+/* ── Validation warning ───────────────────────────────────────────────────────*/
+.validation-warning {
+    background: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 15px 0;
+    font-weight: 500;
+}
+
+.warning {
+    background: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+/* ── Layout toggle ───────────────────────────────────────────────────────────*/
+.layout-toggle-bar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.layout-toggle-btn {
+    background: #f1f3f5;
+    color: #495057;
+    border: 1px solid #ced4da;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.layout-toggle-btn:hover {
+    background: #e2e6ea;
+    border-color: #adb5bd;
+}
+
+.layout-toggle-btn.active {
+    background: #495057;
+    color: white;
+    border-color: #495057;
+}
+
+/* Column layout overrides */
+.column-layout .criterion-options {
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.column-layout .option {
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    min-height: 90px;
+    margin-bottom: 0;
+    padding: 12px 8px;
+}
+
+.column-layout .option:hover {
+    transform: translateY(-3px);
+}
+
+.column-layout .option input[type="radio"] {
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+.column-layout .score-badge {
+    margin-right: 0;
+    margin-bottom: 8px;
+}
+
+.column-layout .option label {
+    text-align: center;
+    font-size: 13px;
+}
+
+/* ── Notes field ─────────────────────────────────────────────────────────────*/
+.notes-section {
+    margin: 0 0 16px 0;
+}
+
+.notes-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.notes-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 14px;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    color: #495057;
+    background: white;
+    resize: vertical;
+    box-sizing: border-box;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.5;
+}
+
+.notes-textarea:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.notes-textarea::placeholder {
+    color: #adb5bd;
+}
+
+/* ── PDF header meta fields ──────────────────────────────────────────────────*/
+.pdf-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.pdf-meta-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #6c757d;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.pdf-meta-input {
+    padding: 7px 11px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    width: 190px;
+    color: #495057;
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.pdf-meta-input:focus {
+    outline: none;
+    border-color: #80bdff;
+    box-shadow: 0 0 0 3px rgba(0,123,255,0.1);
+}
+
+.pdf-meta-input::placeholder {
+    color: #adb5bd;
+}
+
+/* ── §5  Multi-window (placeholder for read-only banner) ─────────────────────*/
+
+/* ── §7  Modals (placeholder for export/import modals) ───────────────────────*/
+
+/* ── Toasts (placeholder) ────────────────────────────────────────────────────*/
+
+/* ── Mobile responsiveness ───────────────────────────────────────────────────*/
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .student-name-input {
+        width: 100%;
+        max-width: 280px;
+    }
+
+    .criterion-header {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .criterion-options {
+        padding: 8px;
+    }
+
+    .option {
+        padding: 10px 8px;
+        margin-bottom: 6px;
+    }
+
+    .navigation {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-button {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .download-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .download-button {
+        width: 100%;
+        max-width: 200px;
+    }
+}
