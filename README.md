@@ -2,10 +2,10 @@
 
 Both tools run locally on your web browser.
 
-## [`rubric_editor.html`](https://chatw.ch/grading_rubric_tools/rubric_editor.html) - Interactive rubric editor
+## [`rubric_editor.html`](https://chatw.ch/grading_rubric_tools/rubric_editor.html){:target="_blank"} - Interactive rubric editor
 ![Screenshot of rubric editor tool](doc/rubric_editor.png)
 
-## [`rubric_grader.html`](https://chatw.ch/grading_rubric_tools/rubric_grader.html) - Using rubric in grading
+## [`rubric_grader.html`](https://chatw.ch/grading_rubric_tools/rubric_grader.html){:target="_blank"} - Using rubric in grading
 ![Screenshot of rubric grading tool](doc/rubric_grader.png)
 
 ## Credits

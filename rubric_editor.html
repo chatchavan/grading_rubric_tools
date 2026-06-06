@@ -232,7 +232,7 @@
     <div class="container">
         <div class="editor-container">
             <div class="editor-pane">
-                <div class="pane-header">✏️ Markdown Editor</div>
+                <div class="pane-header">Editor</div>
                 <textarea id="editor" placeholder="Enter your grading rubric in markdown format...
 
 Example:
@@ -241,13 +241,12 @@ Example:
 	- (1) Clearly stated, but buried too far into the text.
 	- (0) Implicit, ambiguous, or absent
 - Premises - Relevant: Are the premises relevant to the claim?
-	- (2) Most/all
-	- (1) About half
-	- (0) Less than half"></textarea>
+	- (2) Most or all premises are clearly relevant.
+	- (1) About half of the premises are relevant."></textarea>
             </div>
             
             <div class="preview-pane">
-                <div class="pane-header">👀 Preview</div>
+                <div class="pane-header">Preview</div>
                 <div class="controls">
                     <button class="btn save" onclick="saveToLocalStorage()">💾 Save</button>
                     <button class="btn load" onclick="loadFromLocalStorage()">📂 Load</button>
@@ -666,9 +665,8 @@ Example:
 \t- (1) Clearly stated, but buried too far into the text.
 \t- (0) Implicit, ambiguous, or absent
 - Premises - Relevant: Are the premises relevant to the claim?
-\t- (2) Most/all
-\t- (1) About half
-\t- (0) Less than half`;
+\t- (2) Most or all premises are clearly relevant.
+\t- (1) About half of the premises are relevant.`;
 
         document.getElementById('editor').value = initialContent;
         updatePreview();
