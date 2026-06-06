@@ -26,11 +26,12 @@ jobs:
 
       - name: Build site
         run: |
-          mkdir -p _site/js
+          mkdir -p _site/js  _site/doc
 
           # Copy app files
           cp rubric_grader.html rubric_grader.css rubric_editor.html _site/
           cp js/*.js _site/js/
+          cp doc/*.png _site/doc/
 
           # Compile README.md → index.html
           pandoc README.md \
