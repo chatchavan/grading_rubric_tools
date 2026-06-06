@@ -19,3 +19,5 @@ Please file them on the [Issues page](https://github.com/chatchavan/grading_rubr
 ## Credits
 Interaction design and AI-whipping: [Chat Wacharamanotham](https://chatw.ch)
 Coded with contributions from Claude and local gpt-oss-20b.
+
+[Source code on Github](https://github.com/chatchavan/grading_rubric_tools) (MIT License)
