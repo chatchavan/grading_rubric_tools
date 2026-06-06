@@ -14,7 +14,7 @@ Both tools run locally on your web browser. If you like, you can download [the s
 ## Bug reports and suggestions
 Please file them on the [Issues page](https://github.com/chatchavan/grading_rubric_tools/issues).
 
-- 
+--- 
 
 ## Credits
 Interaction design and AI-whipping: [Chat Wacharamanotham](https://chatw.ch)
