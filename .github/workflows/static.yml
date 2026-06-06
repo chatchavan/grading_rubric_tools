@@ -1,0 +1,58 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+
+      - name: Build site
+        run: |
+          mkdir -p _site/js
+
+          # Copy app files
+          cp rubric_grader.html rubric_grader.css rubric_editor.html _site/
+          cp js/*.js _site/js/
+
+          # Compile README.md → index.html
+          pandoc README.md \
+            --standalone \
+            --metadata title="Grading Rubric Tools" \
+            --css https://cdn.jsdelivr.net/npm/github-markdown-css@5/github-markdown.min.css \
+            --variable "body-class=markdown-body" \
+            --output _site/index.html \
+            --template .github/pandoc-template.html
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
